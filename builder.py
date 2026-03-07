@@ -1,4 +1,6 @@
-import streamlit as st
+import sys
+
+top_code = """import streamlit as st
 import plotly.graph_objects as go
 from copy import deepcopy
 from textwrap import dedent
@@ -37,7 +39,7 @@ def format_summary(value: float) -> str:
 # Styling
 # =========================
 html(
-    '''
+    \"\"\"
     <style>
         :root {
             --bg: #04122b;
@@ -119,9 +121,9 @@ html(
         .summary-card {
             background: rgba(58, 77, 108, 0.95);
             border-radius: 8px;
-            padding: 0.8rem 0.3rem;
+            padding: 0.5rem 0.3rem;
             text-align: center;
-            min-height: 120px;
+            min-height: 75px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -134,22 +136,22 @@ html(
         }
 
         .summary-label {
-            font-size: 0.9rem;
+            font-size: 0.72rem;
             font-weight: 700;
             color: #67ebff;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.2rem;
         }
 
         .summary-value {
-            font-size: 2.0rem;
+            font-size: 1.4rem;
             font-weight: 800;
             line-height: 1;
             color: #21e1ff;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.1rem;
         }
 
         .summary-foot {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #d4e6fb;
         }
 
@@ -192,26 +194,26 @@ html(
         .year-card {
             background: #374d6c;
             border-radius: 8px;
-            padding: 0.8rem;
-            min-height: 250px;
+            padding: 0.5rem;
+            min-height: 160px;
         }
 
         .year-title {
             text-align: center;
             color: #56e7ff;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             font-weight: 800;
-            margin-bottom: 0.8rem;
+            margin-bottom: 0.4rem;
         }
 
         .metric-row {
             display: flex;
             justify-content: space-between;
             gap: 0.4rem;
-            font-size: 0.8rem;
+            font-size: 0.65rem;
             font-weight: 600;
             color: #edf6ff;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.15rem;
         }
 
         .metric-value {
@@ -222,11 +224,11 @@ html(
 
         .progress-track {
             width: 100%;
-            height: 8px;
+            height: 6px;
             border-radius: 999px;
             background: rgba(144, 170, 210, 0.23);
             overflow: hidden;
-            margin-bottom: 0.85rem;
+            margin-bottom: 0.4rem;
         }
 
         .progress-fill {
@@ -252,143 +254,20 @@ html(
             box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
         }
 
-        div[data-testid="stPlotlyChart"] { 
-            margin-top: -0.1rem;
-            border-radius: 8px;
-            border: 1px solid rgba(92, 132, 184, 0.35);
-            overflow: hidden;
-            box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
-        }
+        div[data-testid="stPlotlyChart"] { margin-top: -0.1rem; }
     </style>
-    '''
+    \"\"\"
 )
+"""
 
-# =========================
-# Data
-# =========================
-base_class_data = {
-    "Class A": {
-        "color_class": "class-a",
-        "share": "6%",
-        "2025": {
-            "Financial Law": 3000000,
-            "Adjustment": 225000,
-            "Transfer": 225000,
-            "Modified Law": 600000,
-            "Implementation": 2400000,
-            "Available Budget": 750000,
-        },
-        "2026": {
-            "Financial Law": 3300000,
-            "Adjustment": 236250,
-            "Transfer": 236250,
-            "Modified Law": 648000,
-            "Implementation": 2690000,
-            "Available Budget": 817500,
-        },
-    },
-    "Class B": {
-        "color_class": "class-b",
-        "share": "7%",
-        "2025": {
-            "Financial Law": 3500000,
-            "Adjustment": 312500,
-            "Transfer": 312500,
-            "Modified Law": 700000,
-            "Implementation": 2800000,
-            "Available Budget": 875000,
-        },
-        "2026": {
-            "Financial Law": 3850000,
-            "Adjustment": 325625,
-            "Transfer": 325625,
-            "Modified Law": 756000,
-            "Implementation": 3140000,
-            "Available Budget": 953750,
-        },
-    },
-    "Class C": {
-        "color_class": "class-c",
-        "share": "2%",
-        "2025": {
-            "Financial Law": 1000000,
-            "Adjustment": 75000,
-            "Transfer": 75000,
-            "Modified Law": 200000,
-            "Implementation": 800000,
-            "Available Budget": 250000,
-        },
-        "2026": {
-            "Financial Law": 1100000,
-            "Adjustment": 78750,
-            "Transfer": 78750,
-            "Modified Law": 216000,
-            "Implementation": 896000,
-            "Available Budget": 272500,
-        },
-    },
-}
-
-levels = ["National Level", "Sub-National Level", "APE Level"]
-metrics_order = [
-    "Financial Law",
-    "Adjustment",
-    "Transfer",
-    "Modified Law",
-    "Implementation",
-    "Available Budget",
-]
-metric_colors = {
-    "Financial Law": "#22b8ff",
-    "Adjustment": "#42b6f5",
-    "Transfer": "#4cf5c9",
-    "Modified Law": "#20d6a2",
-    "Implementation": "#ffae14",
-    "Available Budget": "#ff5656",
-}
-
-
-def duplicate_across_levels(class_data):
-    return {level: deepcopy(class_data) for level in levels}
-
-
-all_data = {klass: duplicate_across_levels(data) for klass, data in base_class_data.items()}
-
-
-def build_total_class(all_classes):
-    total = {
-        "color_class": "class-total",
-        "share": "15%",
-        "2025": {m: 0 for m in metrics_order},
-        "2026": {m: 0 for m in metrics_order},
-    }
-
-    for _, level_map in all_classes.items():
-        national = level_map["National Level"]
-        for year in ["2025", "2026"]:
-            for metric in metrics_order:
-                total[year][metric] += national[year][metric]
-
-    return duplicate_across_levels(total)
-
-
-def build_overall_summary(all_classes):
-    summary = {m: 0 for m in metrics_order}
-    for _, level_map in all_classes.items():
-        national = level_map["National Level"]
-        for year in ["2025", "2026"]:
-            for metric in metrics_order:
-                summary[metric] += national[year][metric]
-    return summary
-
-
+bottom_code = """
 # =========================
 # Render functions
 # =========================
 def render_progress_metric(label, value, max_value):
     pct = 0 if max_value == 0 else min(value / max_value * 100, 100)
     return dedent(
-        f'''
+        f\"\"\"
         <div class='metric-row'>
             <span>{label}</span>
             <span class='metric-value'>{format_money(value)}</span>
@@ -396,19 +275,19 @@ def render_progress_metric(label, value, max_value):
         <div class='progress-track'>
             <div class='progress-fill' style='width:{pct}%;'></div>
         </div>
-        '''
+        \"\"\"
     ).strip()
 
 
 def render_year_card(year, values, max_value):
     body = "".join(render_progress_metric(m, values[m], max_value) for m in metrics_order)
     html(
-        f'''
+        f\"\"\"
         <div class='year-card'>
             <div class='year-title'>Year {year}</div>
             {body}
         </div>
-        '''
+        \"\"\"
     )
 
 
@@ -424,35 +303,34 @@ def render_level_panel(level_name, class_level_data, key_prefix):
 
 def render_summary(summary):
     html(
-        '''
+        \"\"\"
         <div class='summary-header'>
             <div class='summary-header-title'>Overall Summary</div>
         </div>
-        '''
+        \"\"\"
     )
 
-    c1, c2, c3, c4, c5, c6 = st.columns(6)
+    c1, c2, c3, c4, c5 = st.columns(5)
 
     cards = [
         (c1, "Financial Law", format_summary(summary["Financial Law"]), False),
-        (c2, "Adjustment", format_summary(summary["Adjustment"]), False),
-        (c3, "Transfer", format_summary(summary["Transfer"]), False),
-        (c4, "Modified Law", format_summary(summary["Modified Law"]), False),
-        (c5, "Implementation", format_summary(summary["Implementation"]), True),
-        (c6, "Available Budget", format_summary(summary["Available Budget"]), False),
+        (c2, "Budget Movement", format_summary(summary["Budget Movement"]), False),
+        (c3, "Modified Law", format_summary(summary["Modified Law"]), False),
+        (c4, "Implementation", format_summary(summary["Implementation"]), True),
+        (c5, "Available Budget", format_summary(summary["Available Budget"]), False),
     ]
 
     for col, label, value, priority in cards:
         with col:
             cls = "summary-card priority" if priority else "summary-card"
             html(
-                f'''
+                f\"\"\"
                 <div class='{cls}'>
                     <div class='summary-label'>{label}</div>
                     <div class='summary-value'>{value}</div>
                     <div class='summary-foot'>Total Allocation</div>
                 </div>
-                '''
+                \"\"\"
             )
 
 
@@ -479,7 +357,7 @@ def render_budget_utilization():
         title=dict(text="Budget Utilization by Category", font=dict(size=12, color='#3beaff')),
         height=220,
         margin=dict(l=80, r=40, t=30, b=20),
-        paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color="#dcecff", size=10),
         xaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
         yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)"),
@@ -501,7 +379,7 @@ def render_monthly_trend():
         title=dict(text="Monthly Expense Trend 2026", font=dict(size=12, color='#3beaff')),
         height=220,
         margin=dict(l=40, r=20, t=30, b=20),
-        paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font=dict(color="#dcecff", size=10),
         xaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)"),
         yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
@@ -590,7 +468,14 @@ with left_col:
     st.write("") # small spacing
     
     # 2. Level Panels
-
+    html(
+        \"\"\"
+        <div class='class-header'>
+            <div class='class-title'>Total of All Classes (A + B + C)</div>
+            <div class='class-sub'>Budget Classification and Allocation</div>
+        </div>
+        \"\"\"
+    )
     c1, c2, c3 = st.columns(3)
     with c1: render_level_panel("National Level", combined_total_class["National Level"], "TOTAL-NAT")
     with c2: render_level_panel("Sub-National Level", combined_total_class["Sub-National Level"], "TOTAL-SUB")
@@ -601,14 +486,38 @@ with left_col:
     # 3. Two Bottom Graphs for Left Column
     g1, g2 = st.columns(2)
     with g1:
+        # Wrap in a card-like div using markdown trick to keep consistency? Plotly itself has a background if we want.
+        html("<div style='background:#1a2d4a; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(92, 132, 184, 0.35);'>")
         render_budget_utilization()
+        html("</div>")
     with g2:
+        html("<div style='background:#1a2d4a; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(92, 132, 184, 0.35);'>")
         render_monthly_trend()
+        html("</div>")
 
 with right_col:
     # Right column gets the other 3 graphs stacked vertically. We use the same card CSS.
+    html("<div style='background:#1a2d4a; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(92, 132, 184, 0.35); margin-bottom: 0.5rem;'>")
     render_budget_distribution()
+    html("</div>")
+
+    html("<div style='background:#1a2d4a; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(92, 132, 184, 0.35); margin-bottom: 0.5rem;'>")
     render_top_departments()
+    html("</div>")
+    
+    html("<div style='background:#1a2d4a; padding: 0.5rem; border-radius: 8px; border: 1px solid rgba(92, 132, 184, 0.35);'>")
     render_budget_vs_implementation()
+    html("</div>")
 
 html("<div class='footer-note'>FMIS - Government Expense Dashboard | Data Updated: 3/7/2026</div>")
+"""
+
+with open('data_chunk.py', 'r', encoding='utf-8') as f:
+    data_code = f.read()
+
+with open('app_new.py', 'w', encoding='utf-8') as f:
+    f.write(top_code + "\\n" + data_code + "\\n" + bottom_code)
+
+import os
+os.replace('app_new.py', 'app.py')
+print("Successfully generated and replaced app.py")
