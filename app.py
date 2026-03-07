@@ -476,7 +476,7 @@ def render_budget_utilization():
     ))
     
     fig.update_layout(
-        title=dict(text="Budget Utilization by Category", font=dict(size=12, color='#3beaff')),
+        title=dict(text="Top 10 most spent by Economic class", font=dict(size=12, color='#3beaff')),
         height=220,
         margin=dict(l=80, r=40, t=30, b=20),
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
@@ -520,7 +520,7 @@ def render_top_departments():
         hovertemplate='<b>%{y}</b><br>Budget: $%{x:,.0f}<extra></extra>'
     ))
     fig.update_layout(
-        title=dict(text="Top 5 Departments Allocation", font=dict(size=12, color='#3beaff')),
+        title=dict(text="Top 5 Most Spent by organizations", font=dict(size=12, color='#3beaff')),
         height=220,
         margin=dict(l=65, r=20, t=30, b=20),
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
@@ -539,7 +539,7 @@ def render_budget_vs_implementation():
     fig.add_trace(go.Bar(x=categories, y=budget_allocated, name='Allocated', marker_color='#1f6bff'))
     fig.add_trace(go.Bar(x=categories, y=implementation, name='Implemented', marker_color='#ffae14'))
     fig.update_layout(
-        title=dict(text="Allocated vs Implementation by Qtr", font=dict(size=12, color='#3beaff')),
+        title=dict(text="Modified Law vs Implementation by Qtr", font=dict(size=12, color='#3beaff')),
         barmode='group', height=240,
         margin=dict(l=40, r=20, t=30, b=40),
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
@@ -574,7 +574,7 @@ def render_budget_distribution():
 # Main Layout Composition
 # =========================
 
-html("<div class='dashboard-title'>Government Budget Expense Dashboard</div>")
+html("<div class='dashboard-title'>FMIS - Government Budget Expense Dashboard</div>")
 html("<div class='dashboard-subtitle'>National, Sub-National, and APE Level Analysis | Year 2026</div>")
 
 summary = build_overall_summary(all_data)

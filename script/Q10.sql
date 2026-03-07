@@ -1,18 +1,8 @@
 SELECT
     CASE
-        WHEN GROUPING(
-            CASE
-                WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
-                WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-                ELSE 'Sub-national'
-            END
-        ) = 1 THEN 'All Gov-Level'
-        ELSE
-            CASE
-                WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
-                WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-                ELSE 'Sub-national'
-            END
+        WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
+        WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
+        ELSE 'Sub-national'
     END AS gov_level,
 
     -SUM(CASE 
@@ -45,6 +35,8 @@ JOIN ps_kk_budget_ln line
 WHERE hdr.ledger_group = 'CCEXGROUP'
   AND hdr.fiscal_year = 2025
   AND hdr.unpost_seq = 0
+  AND line.budget_ref <> 'SUBSIDY'
+  AND (line.account LIKE '2%' OR line.account LIKE '6%' OR line.account = '70091')
   AND (
         hdr.bd_hdr_status = 'P'
         OR (
@@ -61,12 +53,11 @@ WHERE hdr.ledger_group = 'CCEXGROUP'
         )
       )
 
-GROUP BY ROLLUP(
+GROUP BY
     CASE
         WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
         WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
         ELSE 'Sub-national'
     END
-)
 
 ORDER BY gov_level;
