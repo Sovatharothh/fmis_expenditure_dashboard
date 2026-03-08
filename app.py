@@ -1,6 +1,5 @@
 import streamlit as st
 import plotly.graph_objects as go
-from copy import deepcopy
 from textwrap import dedent
 
 st.set_page_config(
@@ -19,18 +18,18 @@ def html(block: str):
 
 def format_money(value: float) -> str:
     if value >= 1_000_000:
-        return f"${value / 1_000_000:.2f}M"
+        return f"៛{value / 1_000_000:,.0f}M"
     if value >= 1_000:
-        return f"${value / 1_000:.2f}K"
-    return f"${value:,.0f}"
+        return f"៛{value / 1_000:,.0f}K"
+    return f"៛{value:,.0f}"
 
 
 def format_summary(value: float) -> str:
     if value >= 1_000_000:
-        return f"{round(value / 1_000_000):.0f}M"
+        return f"{round(value / 1_000_000):,.0f}M"
     if value >= 1_000:
-        return f"{round(value / 1_000):.0f}K"
-    return f"{round(value):.0f}"
+        return f"{round(value / 1_000):,.0f}K"
+    return f"{round(value):,.0f}"
 
 
 # =========================
@@ -264,72 +263,44 @@ html(
 )
 
 # =========================
-# Data
+# Data Loading & Processing
 # =========================
-base_class_data = {
-    "Class A": {
-        "color_class": "class-a",
-        "share": "6%",
-        "2025": {
-            "Financial Law": 3000000,
-            "Adjustment": 225000,
-            "Transfer": 225000,
-            "Modified Law": 600000,
-            "Implementation": 2400000,
-            "Available Budget": 750000,
-        },
-        "2026": {
-            "Financial Law": 3300000,
-            "Adjustment": 236250,
-            "Transfer": 236250,
-            "Modified Law": 648000,
-            "Implementation": 2690000,
-            "Available Budget": 817500,
-        },
-    },
-    "Class B": {
-        "color_class": "class-b",
-        "share": "7%",
-        "2025": {
-            "Financial Law": 3500000,
-            "Adjustment": 312500,
-            "Transfer": 312500,
-            "Modified Law": 700000,
-            "Implementation": 2800000,
-            "Available Budget": 875000,
-        },
-        "2026": {
-            "Financial Law": 3850000,
-            "Adjustment": 325625,
-            "Transfer": 325625,
-            "Modified Law": 756000,
-            "Implementation": 3140000,
-            "Available Budget": 953750,
-        },
-    },
-    "Class C": {
-        "color_class": "class-c",
-        "share": "2%",
-        "2025": {
-            "Financial Law": 1000000,
-            "Adjustment": 75000,
-            "Transfer": 75000,
-            "Modified Law": 200000,
-            "Implementation": 800000,
-            "Available Budget": 250000,
-        },
-        "2026": {
-            "Financial Law": 1100000,
-            "Adjustment": 78750,
-            "Transfer": 78750,
-            "Modified Law": 216000,
-            "Implementation": 896000,
-            "Available Budget": 272500,
-        },
-    },
-}
+import pandas as pd
+import os
 
-levels = ["National Level", "Sub-National Level", "APE Level"]
+@st.cache_data
+def load_data():
+    file_path = os.path.join("data_set", "data.xlsx")
+    xls = pd.ExcelFile(file_path)
+    
+    # helper to clean df
+    def get_clean_sheet(sheet_name_hint):
+        sheet = [s for s in xls.sheet_names if sheet_name_hint in s][0]
+        df = pd.read_excel(xls, sheet_name=sheet)
+        df.columns = df.columns.str.strip()
+        if '' in df.columns:
+            df = df.drop(columns=[''])
+        for col in df.columns:
+            if col not in ['GOV_LEVEL', 'MONTH_NAME', 'BUSINESS_UNIT', 'ACCOUNT', 'QUARTER_NAME']:
+                if df[col].dtype == 'object':
+                    s = df[col].astype(str).str.strip()
+                    s = s.str.replace(r'[\'"]', '', regex=True)
+                    s = s.str.replace(',', '', regex=True)
+                    s = s.str.replace(r'^\((.*)\)$', r'-\1', regex=True)
+                    s = s.replace('-', '0')
+                    df[col] = pd.to_numeric(s, errors='coerce').fillna(0)
+        return df
+
+    df_gov = get_clean_sheet("Sheet 1")
+    df_monthly = get_clean_sheet("Sheet 2")
+    df_org = get_clean_sheet("Sheet 3")
+    df_econ = get_clean_sheet("Sheet 4")
+    df_qtr = get_clean_sheet("Sheet 5")
+    
+    return df_gov, df_monthly, df_org, df_econ, df_qtr
+
+df_gov, df_monthly, df_org, df_econ, df_qtr = load_data()
+
 metrics_order = [
     "Financial Law",
     "Adjustment",
@@ -338,48 +309,37 @@ metrics_order = [
     "Implementation",
     "Available Budget",
 ]
-metric_colors = {
-    "Financial Law": "#22b8ff",
-    "Adjustment": "#42b6f5",
-    "Transfer": "#4cf5c9",
-    "Modified Law": "#20d6a2",
-    "Implementation": "#ffae14",
-    "Available Budget": "#ff5656",
-}
 
-
-def duplicate_across_levels(class_data):
-    return {level: deepcopy(class_data) for level in levels}
-
-
-all_data = {klass: duplicate_across_levels(data) for klass, data in base_class_data.items()}
-
-
-def build_total_class(all_classes):
-    total = {
-        "color_class": "class-total",
-        "share": "15%",
-        "2025": {m: 0 for m in metrics_order},
-        "2026": {m: 0 for m in metrics_order},
+def build_overall_summary():
+    row = df_gov[df_gov['GOV_LEVEL'].str.strip() == 'All'].iloc[0]
+    return {
+        "Financial Law": row["ORIGINAL_BUDGET"],
+        "Adjustment": row["ADJUSTMENT_BUDGET"],
+        "Transfer": row["TRANSFER_BUDGET"],
+        "Modified Law": row["CURRENT_BUDGET"],
+        "Implementation": row["IMPLEMENTATION"],
+        "Available Budget": row["AVAILABLE_BUDGET"],
     }
 
-    for _, level_map in all_classes.items():
-        national = level_map["National Level"]
-        for year in ["2025", "2026"]:
-            for metric in metrics_order:
-                total[year][metric] += national[year][metric]
-
-    return duplicate_across_levels(total)
-
-
-def build_overall_summary(all_classes):
-    summary = {m: 0 for m in metrics_order}
-    for _, level_map in all_classes.items():
-        national = level_map["National Level"]
-        for year in ["2025", "2026"]:
-            for metric in metrics_order:
-                summary[metric] += national[year][metric]
-    return summary
+def build_total_class():
+    combined = {}
+    for lvl, name in [('National', 'National Level'), ('Sub-national', 'Sub-National Level'), ('APE', 'APE Level')]:
+        rows = df_gov[df_gov['GOV_LEVEL'].str.strip() == lvl]
+        if not rows.empty:
+            row = rows.iloc[0]
+            val = {
+                "Financial Law": row["ORIGINAL_BUDGET"],
+                "Adjustment": row["ADJUSTMENT_BUDGET"],
+                "Transfer": row["TRANSFER_BUDGET"],
+                "Modified Law": row["CURRENT_BUDGET"],
+                "Implementation": row["IMPLEMENTATION"],
+                "Available Budget": row["AVAILABLE_BUDGET"],
+            }
+        else:
+            val = {m: 0 for m in metrics_order}
+            
+        combined[name] = {"2025": val}
+    return combined
 
 
 # =========================
@@ -413,13 +373,13 @@ def render_year_card(year, values, max_value):
 
 
 def render_level_panel(level_name, class_level_data, key_prefix):
-    y26 = class_level_data["2026"]
+    y26 = class_level_data["2025"]
     max_value = max(list(y26.values()))
 
     with st.container():
         html("<div class='panel-marker'></div>")
         html(f"<div class='panel-title'>{level_name}</div>")
-        render_year_card("2026", y26, max_value)
+        render_year_card("2025", y26, max_value)
 
 
 def render_summary(summary):
@@ -461,124 +421,134 @@ def render_summary(summary):
 # =========================
 
 def render_budget_utilization():
-    fig = go.Figure()
-    categories = ["Implementation", "Modified Law", "Avail Budget"]
-    values = [2690000, 648000, 817500]
-    total = sum(values)
-    utilization_pct = [(v/total)*100 for v in values]
+    # Sheet 4: Top Economic Class
+    df_econ_sorted = df_econ.sort_values(by="IMPLEMENTATION", ascending=True).tail(10)
+    categories = df_econ_sorted["ACCOUNT"].astype(str).tolist()
+    values = df_econ_sorted["IMPLEMENTATION"].tolist()
     
+    fig = go.Figure()
     fig.add_trace(go.Bar(
         y=categories, x=values, orientation='h',
-        marker=dict(color=['#ffae14', '#20d6a2', '#ff5656']),
-        text=[f"{p:.1f}%" for p in utilization_pct],
+        marker=dict(color='#20d6a2'),
+        text=[f"៛{v/1000000:,.0f}M" for v in values],
         textposition='outside',
-        hovertemplate='<b>%{y}</b><br>Amount: $%{x:,.0f}<extra></extra>'
+        hovertemplate='<b>%{y}</b><br>Amount: ៛%{x:,.0f}<extra></extra>'
     ))
     
     fig.update_layout(
-        title=dict(text="Top 10 most spent by Economic class", font=dict(size=12, color='#3beaff')),
+        title={"text": "Top 10 most spent by Economic class", "font": {"size": 12, "color": "#3beaff"}},
         height=220,
-        margin=dict(l=80, r=40, t=30, b=20),
+        margin={"l": 60, "r": 40, "t": 30, "b": 20},
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
-        font=dict(color="#dcecff", size=10),
-        xaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
-        yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)"),
+        font={"color": "#dcecff", "size": 10},
+        xaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s"},
+        yaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "type": "category"},
         showlegend=False
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_monthly_trend():
-    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    expenses = [1800000, 2100000, 1900000, 2300000, 2500000, 2200000, 2450000, 2100000, 1900000, 2400000, 2600000, 2800000]
+    months = df_monthly["MONTH_NAME"].astype(str).tolist()
+    expenses = df_monthly["IMPLEMENTATION"].tolist()
+    
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=months, y=expenses, mode='lines+markers',
-        line=dict(color='#20d6ff', width=2), marker=dict(size=6, color='#20d6ff'),
+        line={"color": "#20d6ff", "width": 2}, marker={"size": 6, "color": "#20d6ff"},
         fill='tozeroy', fillcolor='rgba(32, 214, 255, 0.1)',
-        hovertemplate='<b>%{x}</b><br>Expense: $%{y:,.0f}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Expense: ៛%{y:,.0f}<extra></extra>'
     ))
     fig.update_layout(
-        title=dict(text="Monthly Expense Trend 2026", font=dict(size=12, color='#3beaff')),
+        title={"text": "Monthly Expense Trend 2025", "font": {"size": 12, "color": "#3beaff"}},
         height=220,
-        margin=dict(l=40, r=20, t=30, b=20),
+        margin={"l": 40, "r": 20, "t": 30, "b": 20},
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
-        font=dict(color="#dcecff", size=10),
-        xaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)"),
-        yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
+        font={"color": "#dcecff", "size": 10},
+        xaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "gridcolor": "rgba(255,255,255,0.05)", "type": "category"},
+        yaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s"},
         showlegend=False
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_top_departments():
-    departments = ['Ministry A', 'Ministry B', 'Ministry C', 'Ministry D', 'Ministry E']
-    budgets = [2690000, 2450000, 2100000, 1800000, 1500000]
+    df_org_sorted = df_org.sort_values(by="IMPLEMENTATION", ascending=True).tail(5)
+    departments = df_org_sorted["BUSINESS_UNIT"].astype(str).tolist()
+    budgets = df_org_sorted["IMPLEMENTATION"].tolist()
+    
     fig = go.Figure()
     fig.add_trace(go.Bar(
         y=departments, x=budgets, orientation='h',
-        marker=dict(color=['#1f6bff', '#08c6df', '#20d6ff', '#16c3ff', '#2e8fff']),
-        text=[f"${b/1000000:.1f}M" for b in budgets], textposition='inside',
-        hovertemplate='<b>%{y}</b><br>Budget: $%{x:,.0f}<extra></extra>'
+        marker={"color": ['#1f6bff', '#08c6df', '#20d6ff', '#16c3ff', '#2e8fff']},
+        text=[f"៛{b/1000000:,.0f}M" for b in budgets], textposition='inside',
+        hovertemplate='<b>%{y}</b><br>Budget: ៛%{x:,.0f}<extra></extra>'
     ))
     fig.update_layout(
-        title=dict(text="Top 5 Most Spent by organizations", font=dict(size=12, color='#3beaff')),
+        title={"text": "Top 5 Most Spent by organizations", "font": {"size": 12, "color": "#3beaff"}},
         height=220,
-        margin=dict(l=65, r=20, t=30, b=20),
+        margin={"l": 65, "r": 20, "t": 30, "b": 20},
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
-        font=dict(color="#dcecff", size=10),
-        xaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
-        yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)"),
+        font={"color": "#dcecff", "size": 10},
+        xaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s"},
+        yaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "type": "category"},
         showlegend=False
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_budget_vs_implementation():
-    categories = ['Q1', 'Q2', 'Q3', 'Q4']
-    budget_allocated = [2500000, 2700000, 2600000, 2800000]
-    implementation = [2400000, 2500000, 2300000, 2600000]
+    categories = df_qtr["QUARTER_NAME"].astype(str).tolist()
+    implementation = df_qtr["IMPLEMENTATION"].tolist()
+    
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=categories, y=budget_allocated, name='Allocated', marker_color='#1f6bff'))
-    fig.add_trace(go.Bar(x=categories, y=implementation, name='Implemented', marker_color='#ffae14'))
+    colors = ['#ffae14', '#20d6a2', '#22b8ff', '#ff5656']
+    fig.add_trace(go.Bar(
+        x=categories, y=implementation, name='Implemented', 
+        marker={"color": colors},
+        text=[f"៛{v/1000000:,.0f}M" for v in implementation],
+        textposition='outside',
+        hovertemplate='<b>%{x}</b><br>Amount: ៛%{y:,.0f}<extra></extra>'
+    ))
     fig.update_layout(
-        title=dict(text="Modified Law vs Implementation by Qtr", font=dict(size=12, color='#3beaff')),
+        title={"text": "Implementation by Qtr", "font": {"size": 12, "color": "#3beaff"}},
         barmode='group', height=240,
-        margin=dict(l=40, r=20, t=30, b=40),
+        margin={"l": 40, "r": 20, "t": 30, "b": 40},
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
-        font=dict(color="#dcecff", size=10),
-        xaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)"),
-        yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
-        legend=dict(orientation='h', yanchor='top', y=-0.15, xanchor='center', x=0.5, font=dict(size=9))
+        font={"color": "#dcecff", "size": 10},
+        xaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "gridcolor": "rgba(255,255,255,0.05)", "type": "category"},
+        yaxis={"showline": True, "linecolor": "rgba(215,230,255,0.2)", "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s"},
+        legend={"orientation": "h", "yanchor": "top", "y": -0.15, "xanchor": "center", "x": 0.5, "font": {"size": 9}}
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
-def render_budget_distribution():
+def render_budget_distribution(summary):
+    budget_movement = summary["Adjustment"] + summary["Transfer"]
     categories = ['Financial Law', 'Budget Movement', 'Modified Law', 'Implementation', 'Available Budget']
-    values = [3300000, 472500, 648000, 2690000, 817500]
+    values = [summary['Financial Law'], budget_movement, summary['Modified Law'], summary['Implementation'], summary['Available Budget']]
     colors = ['#22b8ff', '#24d2ff', '#20d6a2', '#ffae14', '#ff5656']
     fig = go.Figure(data=[go.Pie(
-        labels=categories, values=values, marker=dict(colors=colors),
+        labels=categories, values=values, marker={"colors": colors},
         textposition='inside', textinfo='percent', hole=0.4,
-        hovertemplate='<b>%{label}</b><br>Amount: $%{value:,.0f}<extra></extra>'
+        hovertemplate='<b>%{label}</b><br>Amount: ៛%{value:,.0f}<extra></extra>'
     )])
     fig.update_layout(
-        title=dict(text="Budget Distribution 2026", font=dict(size=12, color='#3beaff')),
+        title={"text": "Budget Distribution 2025", "font": {"size": 12, "color": "#3beaff"}},
         height=260,
-        margin=dict(l=10, r=10, t=30, b=10),
+        margin={"l": 10, "r": 10, "t": 30, "b": 10},
         paper_bgcolor="#1a2d4a", plot_bgcolor="#1a2d4a",
-        font=dict(color="#dcecff", size=10),
+        font={"color": "#dcecff", "size": 10},
         showlegend=True,
-        legend=dict(orientation='h', yanchor='top', y=-0.05, xanchor='center', x=0.5, font=dict(size=9))
+        legend={"orientation": "h", "yanchor": "top", "y": -0.05, "xanchor": "center", "x": 0.5, "font": {"size": 9}}
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 # =========================
 # Main Layout Composition
 # =========================
 
-html("<div class='dashboard-title'>FMIS - Government Budget Expense Dashboard</div>")
-html("<div class='dashboard-subtitle'>National, Sub-National, and APE Level Analysis | Year 2026</div>")
+html("<div class='dashboard-title'>Cambodia FMIS - Budget Execution Dashboard</div>")
+html("<div class='dashboard-subtitle'>National, Sub-National, and APE Level Analysis | Year 2025</div>")
 
-summary = build_overall_summary(all_data)
-combined_total_class = build_total_class(all_data)
+summary = build_overall_summary()
+combined_total_class = build_total_class()
 
 # Grid Layout: Left Column (70%) and Right Column (30%)
 left_col, right_col = st.columns([7, 3], gap="medium")
@@ -607,8 +577,8 @@ with left_col:
 
 with right_col:
     # Right column gets the other 3 graphs stacked vertically. We use the same card CSS.
-    render_budget_distribution()
+    render_budget_distribution(summary)
     render_top_departments()
     render_budget_vs_implementation()
 
-html("<div class='footer-note'>FMIS - Government Expense Dashboard | Data Updated: 3/7/2026</div>")
+html("<div class='footer-note'>FMIS - Government Expense Dashboard | Data Updated: 3/7/2025</div>")
