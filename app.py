@@ -544,7 +544,7 @@ def render_budget_distribution(summary):
 # Main Layout Composition
 # =========================
 
-html("<div class='dashboard-title'>Cambodia FMIS - Budget Execution Dashboard</div>")
+html("<div class='dashboard-title'>FMIS - Budget Execution Dashboard</div>")
 html("<div class='dashboard-subtitle'>National, Sub-National, and APE Level Analysis | Year 2025</div>")
 
 summary = build_overall_summary()
