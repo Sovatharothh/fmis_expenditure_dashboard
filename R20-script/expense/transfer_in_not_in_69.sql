@@ -1,23 +1,5 @@
-INSERT INTO PS_Z_RPT_R20_T1 (PROCESS_INSTANCE
- , BUSINESS_UNIT
- , OPERATING_UNIT
- , CHAPTER
- , Z_ACCOUNT
- , ACCOUNT
- , PROGRAM_CODE
- , DEPTID
- , BUDGET_REF
- , ACCOUNTING_PERIOD
- , AMOUNT_1
- , AMOUNT_2
- , AMOUNT_3
- , AMOUNT_4
- , Z_AMOUNT_5
- , Z_AMOUNT_6
- , Z_AMOUNT_7
- , Z_AMOUNT_8) 
- SELECT %Bind(PROCESS_INSTANCE)
- , line.business_unit
+ 
+ SELECT  line.business_unit
  , OPERATING_UNIT
  , SUBSTR(line.account
  ,1
@@ -44,9 +26,9 @@ INSERT INTO PS_Z_RPT_R20_T1 (PROCESS_INSTANCE
    AND hdr.JOURNAL_ID = line.JOURNAL_ID 
    AND (hdr.JOURNAL_DATE = line.JOURNAL_DATE) 
    AND hdr.UNPOST_SEQ = line.UNPOST_SEQ 
-   AND hdr.ledger_group = %Bind(LEDGER_GROUP)   
-   AND hdr.fiscal_year = %Bind(FISCAL_YEAR)   
-   AND hdr.accounting_period BETWEEN 1 AND %Bind(PERIOD_TO)   
+   AND hdr.ledger_group = 'CCEXGROUP'  
+   AND hdr.fiscal_year = 2026 
+   AND hdr.accounting_period BETWEEN 1 AND 12
    AND hdr.unpost_seq = '0'   
    AND hdr.kk_budg_trans_type = '2'   
    AND hdr.bd_hdr_status = 'P'   
