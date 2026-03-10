@@ -258,6 +258,32 @@ html(
             overflow: hidden;
             box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
         }
+
+        /* Top 5 Bar Chart Animation for Top 1 */
+        .element-container:has(.top5-anim-marker) + .element-container g.points > g:last-child path,
+        .element-container:has(.top5-anim-marker) + .element-container g.points > path:last-child {
+            animation: topBarPulse 1.5s infinite alternate ease-in-out !important;
+            transform-origin: left center;
+        }
+
+        .element-container:has(.top5-anim-marker) + .element-container g.text > g:last-child text,
+        .element-container:has(.top5-anim-marker) + .element-container g.text > text:last-child {
+            animation: topTextMove 1.5s infinite alternate ease-in-out !important;
+        }
+
+        @keyframes topBarPulse {
+            0% {
+                filter: drop-shadow(0 0 2px rgba(46,143,255,0.4)) brightness(1);
+            }
+            100% {
+                filter: drop-shadow(0 0 12px rgba(46,143,255,0.85)) brightness(1.25);
+            }
+        }
+
+        @keyframes topTextMove {
+            0% { transform: translateX(0px); }
+            100% { transform: translateX(4px); }
+        }
     </style>
     '''
 )
@@ -383,13 +409,13 @@ def render_level_panel(level_name, class_level_data, key_prefix):
 
 
 def render_summary(summary):
-    html(
-        '''
-        <div class='summary-header'>
-            <div class='summary-header-title'>Overall Summary</div>
-        </div>
-        '''
-    )
+    # html(
+    #     '''
+    #     <div class='summary-header'>
+    #         <div class='summary-header-title'>Overall Summary</div>
+    #     </div>
+    #     '''
+    # )
 
     c1, c2, c3, c4, c5, c6 = st.columns(6)
 
@@ -471,6 +497,7 @@ def render_monthly_trend():
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_top_departments():
+    html("<div class='top5-anim-marker' style='display:none'></div>")
     df_org_sorted = df_org.sort_values(by="IMPLEMENTATION", ascending=True).tail(5)
     departments = df_org_sorted["BUSINESS_UNIT"].astype(str).tolist()
     budgets = df_org_sorted["IMPLEMENTATION"].tolist()
@@ -581,4 +608,4 @@ with right_col:
     render_top_departments()
     render_budget_vs_implementation()
 
-html("<div class='footer-note'>FMIS - Government Expense Dashboard | Data Updated: 3/7/2025</div>")
+html("<div class='footer-note'>FMIS - Government Expense Dashboard | Data Updated: 03/09/2026</div>")
