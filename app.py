@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 st.set_page_config(
-    page_title="Government Budget Execution Dashboard",
+    page_title="FMIS Dashboard",
     page_icon="📊",
     layout="wide",
     initial_sidebar_state="collapsed",
@@ -114,7 +114,7 @@ html(
             border-radius: 12px;
             padding: 0.8rem 1rem;
             text-align: center;
-            min-height: 100px;
+            min-height: 110px;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -505,6 +505,8 @@ def render_top5_chart(df, title, is_expense=True):
     base_color = '#ff5656' if is_expense else '#20d6a2'
     glow_color = 'rgba(255, 86, 86, 0.3)' if is_expense else 'rgba(32, 214, 162, 0.3)'
     
+    max_val = max(values) if values else 1
+    
     fig = go.Figure()
     fig.add_trace(go.Bar(
         y=categories, x=values, orientation='h',
@@ -512,7 +514,7 @@ def render_top5_chart(df, title, is_expense=True):
             color=base_color,
             line=dict(color='rgba(255,255,255,0.2)', width=1)
         ),
-        text=[f"៛{v/1000000:,.0f}M" for v in values],
+        text=[format_money(v) for v in values],
         textposition='outside',
         textfont=dict(color='white', size=11, weight='bold'),
         hovertemplate='<b>%{y}</b><br>Amount: ៛%{x:,.0f}<extra></extra>'
@@ -521,10 +523,17 @@ def render_top5_chart(df, title, is_expense=True):
     fig.update_layout(
         title={"text": title, "font": {"size": 13, "color": "#ffffff", "family": "sans-serif"}},
         height=230,
-        margin={"l": 20, "r": 90, "t": 40, "b": 10}, # Increased right margin to 90 for value labels
+        margin={"l": 20, "r": 100, "t": 40, "b": 10}, # Increased right margin to 100
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": "#dcecff", "size": 11},
-        xaxis={"showline": False, "showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s"},
+        xaxis={
+            "showline": False, 
+            "showgrid": True, 
+            "gridcolor": "rgba(255,255,255,0.05)", 
+            "tickprefix": "៛", 
+            "tickformat": ",.0s",
+            "range": [0, max_val * 1.3] # Add 30% padding to the right for labels
+        },
         yaxis={"showline": False, "showgrid": False, "type": "category"},
         showlegend=False,
         # Fancy transition
