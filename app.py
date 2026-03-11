@@ -445,7 +445,7 @@ def render_ratio(col, title, impl, mod, type_class):
         ))
         
         fig.update_layout(
-            height=180,
+            height=210,
             margin=dict(l=30, r=30, t=50, b=10),
             paper_bgcolor="rgba(0,0,0,0)",
             font={'color': "white", 'family': "Arial"}
