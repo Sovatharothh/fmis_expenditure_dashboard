@@ -363,7 +363,7 @@ def render_budget_utilization():
         yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)"),
         showlegend=False
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_monthly_trend():
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -385,7 +385,7 @@ def render_monthly_trend():
         yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
         showlegend=False
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_top_departments():
     departments = ['Ministry A', 'Ministry B', 'Ministry C', 'Ministry D', 'Ministry E']
@@ -407,7 +407,7 @@ def render_top_departments():
         yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)"),
         showlegend=False
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_budget_vs_implementation():
     categories = ['Q1', 'Q2', 'Q3', 'Q4']
@@ -426,7 +426,7 @@ def render_budget_vs_implementation():
         yaxis=dict(showline=True, linecolor="rgba(215,230,255,0.2)", gridcolor="rgba(255,255,255,0.05)", tickformat="$,.0s"),
         legend=dict(orientation='h', yanchor='top', y=-0.15, xanchor='center', x=0.5, font=dict(size=9))
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_budget_distribution():
     categories = ['Financial Law', 'Budget Movement', 'Modified Law', 'Implementation', 'Available Budget']
@@ -446,7 +446,7 @@ def render_budget_distribution():
         showlegend=True,
         legend=dict(orientation='h', yanchor='top', y=-0.05, xanchor='center', x=0.5, font=dict(size=9))
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 # =========================
 # Main Layout Composition

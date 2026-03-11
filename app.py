@@ -530,7 +530,7 @@ def render_top5_chart(df, title, is_expense=True):
         # Fancy transition
         transition={'duration': 1000, 'easing': 'cubic-in-out'}
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_top5_pie_chart(df, title, is_expense=True):
     df_sorted = df.sort_values(by="IMPLEMENTATION", ascending=False).head(5)
@@ -577,7 +577,7 @@ def render_top5_pie_chart(df, title, is_expense=True):
         transition={'duration': 1000, 'easing': 'cubic-in-out'},
         annotations=[dict(text='TOP 5', x=0.5, y=0.5, font_size=16, showarrow=False, font_color='white', font_family='Arial Black')]
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_combined_monthly_chart(df_exp, df_rev, title):
     df_merged = pd.merge(df_exp, df_rev, on="MONTH_NAME", suffixes=("_EXP", "_REV"), how="outer")
