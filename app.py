@@ -580,7 +580,17 @@ def render_top5_pie_chart(df, title, is_expense=True):
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_combined_monthly_chart(df_exp, df_rev, title):
+    # Standard month order for sorting
+    month_order = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    
+    # Merge dataframes
     df_merged = pd.merge(df_exp, df_rev, on="MONTH_NAME", suffixes=("_EXP", "_REV"), how="outer")
+    
+    # Ensure standard sorting by month
+    # We map the month names to their index in the order list for robust sorting
+    df_merged['MONTH_IDX'] = df_merged['MONTH_NAME'].str.strip().str[:3].str.title().map({m: i for i, m in enumerate(month_order)})
+    df_merged = df_merged.sort_values('MONTH_IDX').dropna(subset=['MONTH_IDX'])
+    
     months = df_merged["MONTH_NAME"].astype(str).tolist()
     exp_values = df_merged["IMPLEMENTATION_EXP"].fillna(0).tolist()
     rev_values = df_merged["IMPLEMENTATION_REV"].fillna(0).tolist()
@@ -792,7 +802,7 @@ with c4:
 html("<div style='height: 0.5rem'></div>")
 
 # Bottom Section: Combined Trends & Additional Analysis
-b1, b2, b3 = st.columns([8, 10,8], gap="large")
+b1, b2, b3 = st.columns([10, 12,8], gap="large")
 with b1:
     render_combined_monthly_chart(exp_data["monthly"], rev_data["monthly"], "Monthly Trend (Rev vs Exp)")
 with b2:
