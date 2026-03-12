@@ -657,7 +657,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
             x=0, y=q,
             text=q,
             showarrow=False,
-            font=dict(color='#20d6ff', size=13, family='Arial Black'),
+            font=dict(color='#FFFFFF', size=13, family='Arial Black'),
             bgcolor='rgba(4, 18, 43, 1.0)', # Solid dark background
             bordercolor='rgba(32, 214, 255, 0.4)',
             borderwidth=1,
