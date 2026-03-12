@@ -19,25 +19,15 @@ def html(block: str):
 
 
 def format_money(value: float) -> str:
-    if value >= 1_000_000_000_000:
-        return f"៛{value / 1_000_000_000_000:,.1f}T"
-    if value >= 1_000_000_000:
-        return f"៛{value / 1_000_000_000:,.1f}B"
-    if value >= 1_000_000:
-        return f"៛{value / 1_000_000:,.1f}M"
-    if value >= 1_000:
-        return f"៛{value / 1_000:,.1f}K"
-    return f"៛{value:,.0f}"
+    return f"{value:,.0f} KHR"
 
 
 def format_summary(value: float) -> str:
-    if value >= 1_000_000_000_000:
-        return f"{value / 1_000_000_000_000:,.2f}T"
-    if value >= 1_000_000_000:
-        return f"{value / 1_000_000_000:,.2f}B"
-    if value >= 1_000_000:
-        return f"{value / 1_000_000:,.0f}M"
-    return f"{value:,.0f}"
+    return f"{value:,.0f} KHR"
+
+
+def format_exact(value: float) -> str:
+    return f"{value:,.0f} KHR"
 
 
 # =========================
@@ -408,9 +398,9 @@ def render_kpi(col, title, value, type_class, delay_class):
     with col:
         html(
             f'''
-            <div class='kpi-card {type_class} {delay_class}'>
+            <div class='kpi-card {type_class} {delay_class}' title='{format_exact(value)}'>
                 <div class='kpi-label'>{title}</div>
-                <div class='kpi-value'>{format_summary(value)}</div>
+                <div class='kpi-value' style='font-size: 1.5rem;'>{format_summary(value)}</div>
             </div>
             '''
         )
@@ -466,7 +456,7 @@ def render_process_row(label, value, target, is_expense=True):
         "<div class='process-row' style='margin-bottom: 0.8rem;'>",
         "<div class='process-label-row'>",
         f"<span>{label} <span style='font-size: 0.75rem; opacity: 0.7; color: #fff;'>({pct:.1f}%)</span></span>",
-        f"<span style='color:{label_color}'>{format_money(value)}</span>",
+        f"<span style='color:{label_color}' title='{format_exact(value)}'>{format_money(value)}</span>",
         "</div>",
         "<div class='process-track'>",
         f"<div class='process-fill' style='width:{display_pct}%; background:{color}; box-shadow: 0 0 10px {glow};'></div>",
@@ -514,10 +504,11 @@ def render_top5_chart(df, title, is_expense=True):
             color=base_color,
             line=dict(color='rgba(255,255,255,0.2)', width=1)
         ),
-        text=[format_money(v) for v in values],
+        text=[f"{v:,.0f} KHR" for v in values],
         textposition='outside',
+        cliponaxis=False,
         textfont=dict(color='white', size=11, weight='bold'),
-        hovertemplate='<b>%{y}</b><br>Amount: ៛%{x:,.0f}<extra></extra>'
+        hovertemplate='<b>%{y}</b><br>Amount: %{x:,.0f} KHR<extra></extra>'
     ))
     
     fig.update_layout(
@@ -530,9 +521,9 @@ def render_top5_chart(df, title, is_expense=True):
             "showline": False, 
             "showgrid": True, 
             "gridcolor": "rgba(255,255,255,0.05)", 
-            "tickprefix": "៛", 
-            "tickformat": ",.0s",
-            "range": [0, max_val * 1.3] # Add 30% padding to the right for labels
+            "ticksuffix": " KHR", 
+            "tickformat": ".0s",
+            "range": [0, max_val * 1.8] # Increased padding for long labels
         },
         yaxis={"showline": False, "showgrid": False, "type": "category"},
         showlegend=False,
@@ -564,7 +555,7 @@ def render_top5_pie_chart(df, title, is_expense=True):
         textinfo='percent',
         textposition='inside',
         marker=dict(colors=colors, line=dict(color='rgba(255,255,255,0.1)', width=2)),
-        hovertemplate='<b>%{label}</b><br>Amount: ៛%{value:,.0f}<extra></extra>'
+        hovertemplate='<b>%{label}</b><br>Amount: %{value:,.0f} KHR<extra></extra>'
     )])
     
     fig.update_layout(
@@ -602,14 +593,14 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         line={"color": '#20d6a2', "width": 3, "shape": "spline", "smoothing": 1}, 
         marker={"size": 10, "color": "#ffffff", "line": {"width": 2, "color": '#20d6a2'}},
         fill='tozeroy', fillcolor='rgba(32, 214, 162, 0.10)',
-        hovertemplate='<b>%{x}</b><br>Revenue: ៛%{y:,.0f}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Revenue: %{y:,.0f} KHR<extra></extra>'
     ))
     fig.add_trace(go.Scatter(
         x=months, y=exp_values, name='Expense', mode='lines+markers',
         line={"color": '#ff5656', "width": 3, "shape": "spline", "smoothing": 1}, 
         marker={"size": 10, "color": "#ffffff", "line": {"width": 2, "color": '#ff5656'}},
         fill='tozeroy', fillcolor='rgba(255, 86, 86, 0.10)',
-        hovertemplate='<b>%{x}</b><br>Expense: ៛%{y:,.0f}<extra></extra>'
+        hovertemplate='<b>%{x}</b><br>Expense: %{y:,.0f} KHR<extra></extra>'
     ))
 
     # Add Movement: Animate drawing the line
@@ -620,7 +611,7 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": "#dcecff", "size": 11},
         xaxis={"showline": False, "showgrid": False, "type": "category"},
-        yaxis={"showline": False, "showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s"},
+        yaxis={"showline": False, "showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "ticksuffix": " KHR", "tickformat": ".0s"},
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
         hovermode="x unified"
@@ -638,36 +629,65 @@ def render_quarterly_chart(df_exp, df_rev, title):
     rev_vals = df_merged["IMPLEMENTATION_REV"].fillna(0).tolist()
     
     neg_exp_vals = [-v for v in exp_vals]
-    rev_text = [f"៛{v/1000000000:,.1f}B" if v>=1000000000 else f"៛{v/1000000:,.0f}M" for v in rev_vals]
-    exp_text = [f"៛{v/1000000000:,.1f}B" if v>=1000000000 else f"៛{v/1000000:,.0f}M" for v in exp_vals]
+    rev_text = [f"{v:,.0f} KHR" for v in rev_vals]
+    exp_text = [f"{v:,.0f} KHR" for v in exp_vals]
     
     fig = go.Figure()
     fig.add_trace(go.Bar(
         y=qtrs, x=neg_exp_vals, orientation='h', name='Expense',
         marker=dict(color='#ff5656', line=dict(color='rgba(255,255,255,0.1)', width=1)),
-        text=exp_text, textposition='outside', textfont=dict(color='#ff9b9b'),
-        hovertemplate='<b>%{y}</b><br>Expense: ៛%{customdata:,.0f}<extra></extra>',
+        text=exp_text, textposition='outside', 
+        cliponaxis=False,
+        textfont=dict(color='#ff9b9b'),
+        hovertemplate='<b>%{y}</b><br>Expense: %{customdata:,.0f} KHR<extra></extra>',
         customdata=exp_vals
     ))
     fig.add_trace(go.Bar(
         y=qtrs, x=rev_vals, orientation='h', name='Revenue',
         marker=dict(color='#20d6a2', line=dict(color='rgba(255,255,255,0.1)', width=1)),
-        text=rev_text, textposition='outside', textfont=dict(color='#8affc2'),
-        hovertemplate='<b>%{y}</b><br>Revenue: ៛%{x:,.0f}<extra></extra>'
+        text=rev_text, textposition='outside', 
+        cliponaxis=False,
+        textfont=dict(color='#8affc2'),
+        hovertemplate='<b>%{y}</b><br>Revenue: %{x:,.0f} KHR<extra></extra>'
     ))
     
-    max_val = max(max(rev_vals) if rev_vals else 0, max(exp_vals) if exp_vals else 0) * 1.3
+    # Add Center Labels (Q1, Q2, etc.) with high-contrast background
+    for q in qtrs:
+        fig.add_annotation(
+            x=0, y=q,
+            text=q,
+            showarrow=False,
+            font=dict(color='#20d6ff', size=13, family='Arial Black'),
+            bgcolor='rgba(4, 18, 43, 1.0)', # Solid dark background
+            bordercolor='rgba(32, 214, 255, 0.4)',
+            borderwidth=1,
+            borderpad=5,
+            opacity=1.0
+        )
+    
+    max_val = max(max(rev_vals) if rev_vals else 0, max(exp_vals) if exp_vals else 0) * 1.5
     if max_val == 0: max_val = 1
     
     fig.update_layout(
         barmode='relative',
         title={"text": title, "font": {"size": 13, "color": "#ffffff", "family": "sans-serif"}},
         height=320,
-        margin={"l": 40, "r": 20, "t": 45, "b": 10},
+        margin={"l": 20, "r": 20, "t": 40, "b": 20},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": "#dcecff", "size": 11},
-        xaxis={"showline": False, "showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "range": [-max_val, max_val], "showticklabels": False, "zeroline": True, "zerolinecolor": "rgba(255,255,255,0.2)"},
-        yaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": dict(weight='bold')},
+        xaxis={
+            "showline": False, 
+            "showgrid": True, 
+            "gridcolor": "rgba(255,255,255,0.05)", 
+            "range": [-max_val, max_val], 
+            "showticklabels": True, 
+            "tickformat": ".0s", 
+            "ticksuffix": " KHR", 
+            "zeroline": True, 
+            "zerolinecolor": "rgba(255,255,255,0.4)",
+            "zerolinewidth": 2
+        },
+        yaxis={"showline": False, "showgrid": False, "type": "category", "showticklabels": False}, # Hide side labels
         showlegend=True,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
@@ -689,10 +709,11 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
             y=values, 
             marker_color=colors,
             marker_line=dict(width=1, color='rgba(255,255,255,0.2)'),
-            text=[f"៛{v/1000000000:,.1f}B" if abs(v)>=1000000000 else f"៛{v/1000000:,.0f}M" for v in values],
+            text=[f"{v:,.0f} KHR" for v in values],
             textposition='outside',
+            cliponaxis=False,
             textfont=dict(color='white', size=11, weight='bold'),
-            hovertemplate='<b>%{x}</b><br>Amount: ៛%{y:,.0f}<extra></extra>'
+            hovertemplate='<b>%{x}</b><br>Amount: %{y:,.0f} KHR<extra></extra>'
         )
     ])
     
@@ -705,7 +726,7 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": "#dcecff", "size": 12},
         xaxis={"showline": False, "showgrid": False},
-        yaxis={"showline": False, "showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "tickprefix": "៛", "tickformat": ",.0s", "range": y_range},
+        yaxis={"showline": False, "showgrid": True, "gridcolor": "rgba(255,255,255,0.05)", "ticksuffix": " KHR", "tickformat": ".0s", "range": y_range},
         showlegend=False
     )
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
@@ -771,7 +792,7 @@ with c4:
 html("<div style='height: 0.5rem'></div>")
 
 # Bottom Section: Combined Trends & Additional Analysis
-b1, b2, b3 = st.columns(3, gap="large")
+b1, b2, b3 = st.columns([8, 10,8], gap="large")
 with b1:
     render_combined_monthly_chart(exp_data["monthly"], rev_data["monthly"], "Monthly Trend (Rev vs Exp)")
 with b2:
