@@ -1,29 +1,35 @@
-# Government Budget Expense Dashboard 📊
+# FMIS - Expense & Revenue Dashboard 📊
 
-A comprehensive and interactive web application built with **Streamlit** and **Plotly** to visualize and analyze government budget expenses across different levels (National, Sub-National, and APE) for the years 2026.
+A premium, interactive web application built with **Streamlit** and **Plotly** to provide integrated monitoring of Government Expense and Revenue for the year 2025.
 
 ## Overview
 
-The Government Budget Expense Dashboard provides a clear, high-level summary and detailed breakdown of budget allocations, movements, and implementations. It allows stakeholders to monitor financial metrics, identify trends, and ensure budget availability across multiple administrative levels and classifications (Class A, Class B, Class C, and Total).
+The FMIS Expense & Revenue Dashboard serves as a high-end visualization tool for tracking government financial performance. It integrates both expenditure and revenue data to provide a holistic view of implementation progress against the Financial Law and Modified Law across National and Sub-national levels.
 
-## Features
+## Key Features
 
-- **Overall Summary:** High-level metrics for Financial Law, Budget Movement, Modified Law, Implementation, and Available Budget.
-- **Budget Classification Breakdown:** Detailed views for "Class A", "Class B", and "Class C" budgets showing individual contributions and metrics.
-- **Level Analysis:** Specific breakdown of National, Sub-National, and APE Levels side by side for comparison.
-- **Visual Analytics:** Multiple interactive Plotly charts, including:
-  - Budget Utilization Rate by Category
-  - Monthly Expense Trend (2026)
-  - Top 5 Departments by Budget Allocation
-  - Budget Allocated vs. Implementation by Quarter
-  - Available Budget Distribution Pie Chart
-- **Dynamic CSS Styling:** Custom dark-theme user interface with clean typography, progress bars, and premium color palettes designed for maximum readability and visual appeal.
+- **Integrated Summary KPIs:** Real-time visibility into Financial Law and Modified Law targets for both Expense and Revenue.
+- **Execution Ratios:** Dynamic gauge charts showing the percentage of implementation relative to the Modified Law.
+- **Implementation Progress:** Visual process bars tracking National and Sub-national levels side-by-side.
+- **Top 5 Analytics:**
+    - Implementation by **Economic Class** (Expense & Revenue).
+    - implementation by **Organizations** (Expense & Revenue) using high-end donut charts.
+- **Trend Analysis:**
+    - **Monthly Trends:** Interactive multi-line charts comparing Revenue and Expense implementation over time.
+    - **Quarterly Implementation:** Pyramid-style analysis for quarterly performance comparison.
+- **Net Summary:** High-level bar chart comparing total Revenue vs Expense and the resulting Net position.
+- **Premium UI/UX:**
+    - Custom dark-themed interface with vibrant color palettes.
+    - Responsive layout optimized for dashboard displays.
+    - Interactive tooltips showing exact KHR values while maintaining clean "Million" scale visualizations on axes.
 
 ## Tech Stack
 
-- **Python** (Core Logic)
-- **Streamlit** (Web Framework and UI)
-- **Plotly.Graph_Objects** (Interactive Data Visualization)
+- **Python** (Core Logic & Data Processing)
+- **Pandas** (Excel Data Handling)
+- **Streamlit** (Web Framework & Layout)
+- **Plotly** (Interactive Visualizations)
+- **Custom CSS** (Advanced Styling & Animations)
 
 ## Installation & Setup
 
@@ -34,33 +40,17 @@ Ensure you have Python 3.8+ installed on your system.
 ### 1. Clone the repository
 
 ```bash
-# If using git
 git clone https://github.com/Sovatharothh/fmis_expenditure_dashboard.git
 cd R20-dashboard
 ```
 
-### 2. Set up a Virtual Environment (Recommended)
+### 2. Set up a Virtual Environment
 
 **Windows:**
 ```powershell
 python -m venv venv
 .\venv\Scripts\activate
 ```
-
-**macOS/Linux:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-### 3. Install Dependencies
-
-You will need to install `streamlit` and `plotly` to run this application. If you have a `requirements.txt`, run:
-```bash
-pip install -r requirements.txt
-```
-*(Otherwise, simply install the required packages manually: `pip install streamlit plotly`)*
-
 ## Running the Application
 
 To start the dashboard locally, run the following command in your terminal:
@@ -76,8 +66,31 @@ If you are using the virtual environment specifically on Windows, you can also r
 
 The application will typically be served at `http://localhost:8501`.
 
+### 3. Install Dependencies
+
+```bash
+pip install streamlit plotly pandas openpyxl
+```
+
+## Running the Application
+
+To start the dashboard locally, run:
+
+```bash
+streamlit run app.py
+```
+
+The application will typically be served at `http://localhost:8501`.
+
+## Data Source
+
+The dashboard automatically loads and processes data from Excel files located in the `data_set/` directory:
+- `expense.xlsx`: Contains expenditure data across levels and classes.
+- `revenue.xlsx`: Contains revenue collection data and targets.
+
 ## Project Structure
 
-- `app.py`: The main entry point of the application containing the Streamlit layout, style definitions (CSS injected via markdown), mock data structures, and Plotly visualization logic.
-- `venv/`: Your local Python virtual environment.
-
+- `app.py`: Main application script with UI logic and visualizations.
+- `data_set/`: Directory for input Excel data files.
+- `venv/`: Local Python environment.
+- `.streamlit/`: Streamlit configuration and themes.
