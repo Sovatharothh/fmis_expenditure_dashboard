@@ -54,9 +54,9 @@ theme_vars = {
     "cyan": "#3498dc" if is_light else "#20d6ff",
     "blue": "#3498dc" if is_light else "#00A8E1",
     "green": "#1abc9c" if is_light else "#00AD4E",
-    "border": "#d1d5db" if is_light else "rgba(92, 132, 184, 0.35)",
+    "border": "#94a3b8" if is_light else "rgba(92, 132, 184, 0.6)",
     "kpi_bg": "#FAF9F6" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
-    "shadow": "0 4px 12px rgba(0, 0, 0, 0.12)" if is_light else "0 8px 16px rgba(0,0,0,0.2)",
+    "shadow": "none",
     "app_bg": "#FAF9F6" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
     "chart_bg": "#FAF9F6" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
 }
@@ -152,9 +152,9 @@ html(
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+            border: 1.5px solid var(--border);
+            box-shadow: none;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
             animation: fadeInUp 0.8s ease-out backwards;
@@ -162,7 +162,6 @@ html(
 
         .kpi-card:hover {{
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 15px 30px rgba(32, 214, 255, 0.2);
             border-color: var(--cyan);
         }}
 
@@ -219,7 +218,7 @@ html(
             background: var(--panel);
             border-radius: 12px;
             padding: 1rem;
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--border);
             height: 360px;
             box-sizing: border-box;
             display: flex;
@@ -259,14 +258,13 @@ html(
             border-radius: 999px;
             background: rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.25);
+            box-shadow: none;
         }}
 
         .process-fill {{
             height: 100%;
             border-radius: 999px;
             background: linear-gradient(90deg, var(--blue), var(--cyan));
-            box-shadow: 0 0 10px var(--blue);
             position: relative;
             animation: fillBar 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: left;
@@ -296,9 +294,9 @@ html(
             margin-top: 0 !important;
             margin-bottom: 0.5rem;
             border-radius: 12px;
-            border: 1px solid var(--border);
+            border: 1.5px solid var(--border);
             overflow: hidden;
-            box-shadow: var(--shadow);
+            box-shadow: none;
             background: var(--chart-bg);
             transition: all 0.3s ease;
             animation: fadeInUp 0.8s ease-out backwards;
@@ -465,7 +463,7 @@ def render_ratio(col, title, impl, mod, type_class):
             mode = "gauge+number",
             value = ratio,
             number = {"suffix": "%", "font": {"size": 32, "color": text_color, "family": "Arial Black"}},
-            title = {"text": title, "font": {"size": 14, "color": title_color}},
+            title = {"text": f"<b>{title}</b>", "font": {"size": 14, "color": title_color, "family": "Arial"}},
             domain = {'y': [0.15, 1], 'x': [0, 1]},
             gauge = {
                 "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "gray", "ticklen": 5},
@@ -622,7 +620,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     text_color_hex = "0xffffff" if is_dark else "0x1e293b"
     label_color_hex = "0x789bc7" if is_dark else "0x475569"
 
-    border_color = "rgba(92, 132, 184, 0.35)" if is_dark else "#d1d5db"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#94a3b8"
     shadow_val = "0 8px 16px rgba(0,0,0,0.2)" if is_dark else "0 4px 12px rgba(0, 0, 0, 0.12)"
 
     amcharts_html = f"""
@@ -633,11 +631,11 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         height: 235px;
         box-sizing: border-box;
         border-radius: 12px;
-        border: 1px solid {border_color};
+        border: 1.5px solid {border_color};
         overflow: hidden;
-        box-shadow: {shadow_val};
+        box-shadow: none;
         {bg_style}
-        padding: 15px 15px;
+        padding: 20px 22px;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -645,7 +643,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         font-family: sans-serif;
     ">
         <!-- Dashboard-consistent Title -->
-        <div style="width: 100%; color: {title_color}; font-size: 13px; font-weight: bold; margin-bottom: 15px; text-align: left;">
+        <div style="width: 100%; color: {title_color}; font-size: 14px; font-weight: bold; margin-bottom: 18px; text-align: left; font-family: Arial, sans-serif;">
             {title}
         </div>
         
@@ -868,13 +866,13 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
     title_color = "#ffffff" if is_dark else "#1e293b"
     label_color = "#dcecff" if is_dark else "#1e293b" 
-    border_color = "rgba(92, 132, 184, 0.35)" if is_dark else "#d1d5db"
-    shadow_val = "0 8px 16px rgba(0,0,0,0.2)" if is_dark else "0 4px 12px rgba(0, 0, 0, 0.12)"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#94a3b8"
+    shadow_val = "none"
 
     fig.update_layout(
-        title={"text": title, "font": {"size": 11, "color": title_color}},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": title_color, "family": "Arial"}, "x": 0.05, "y": 0.92},
         height=235, 
-        margin={"l": margin_left, "r": 20, "t": 30, "b": 10}, 
+        margin={"l": margin_left + 15, "r": 30, "t": 60, "b": 15}, 
         paper_bgcolor="rgba(0,0,0,0)", 
         plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 10},
