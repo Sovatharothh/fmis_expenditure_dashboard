@@ -763,9 +763,14 @@ def render_top5_gauge_chart(df, title, is_expense=True):
 
         series2.data.setAll(data);
 
-        series1.appear(1500, 100);
-        series2.appear(1500, 200);
-        chart.appear(1500, 100);
+        function redoAnimation() {{
+            series1.appear(1500, 100);
+            series2.appear(1500, 200);
+            chart.appear(1500, 100);
+        }}
+
+        redoAnimation();
+        setInterval(redoAnimation, 30000);
         if(root._logo) {{ root._logo.dispose(); }}
     }}); 
     </script>
@@ -1307,14 +1312,14 @@ html("<div class='footer-note' style='text-align:center; padding-top:0.5rem; pad
 # =========================
 # Interval Loop (Kiosk Mode)
 # =========================
-# Triggers a full page reload every 35 seconds to "redo everything" (animations & data)
+# Triggers a full page reload every 30 seconds to "redo everything" (animations & data)
 html('''
     <div id="refresh-indicator" style="
         position: fixed; 
         bottom: 0; left: 0; width: 0%; height: 2px; 
         background: var(--cyan); 
         z-index: 9999;
-        transition: width 35s linear;
+        transition: width 30s linear;
     "></div>
     <script>
         // Start the progress bar animation
@@ -1322,9 +1327,9 @@ html('''
             document.getElementById('refresh-indicator').style.width = '100%';
         }, 100);
 
-        // Reload the page after 35 seconds
+        // Reload the page after 30 seconds
         setTimeout(() => {
             window.location.reload();
-        }, 35000);
+        }, 30000);
     </script>
 ''')
