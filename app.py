@@ -1,6 +1,7 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import plotly.graph_objects as go
+import plotly.io as pio
 from textwrap import dedent
 import pandas as pd
 import os
@@ -147,21 +148,22 @@ html(
             border-radius: 12px;
             padding: 0.8rem 1rem;
             text-align: center;
-            min-height: 110px;
+            height: 110px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             border: 1px solid var(--border);
             box-shadow: var(--shadow);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
             animation: fadeInUp 0.8s ease-out backwards;
         }}
 
         .kpi-card:hover {{
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(32, 214, 255, 0.15);
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 30px rgba(32, 214, 255, 0.2);
+            border-color: var(--cyan);
         }}
 
         .kpi-card::before {{
@@ -189,7 +191,7 @@ html(
         .kpi-card.revenue .kpi-label {{ color: var(--green); }}
 
         .kpi-value {{
-            font-size: 2.2rem;
+            font-size: 1.5rem;
             font-weight: 900;
             line-height: 1;
             color: var(--text);
@@ -216,8 +218,14 @@ html(
         .process-container {{
             background: var(--panel);
             border-radius: 12px;
-            padding: 0.8rem 1rem;
+            padding: 1rem;
             border: 1px solid var(--border);
+            height: 360px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
             animation: fadeInUp 0.8s ease-out backwards;
             animation-delay: 0.5s;
         }}
@@ -243,7 +251,7 @@ html(
             font-weight: 600;
             color: var(--text);
             margin-bottom: 0.4rem;
-        }}
+          }}
 
         .process-track {{
             width: 100%;
@@ -260,7 +268,7 @@ html(
             background: linear-gradient(90deg, var(--blue), var(--cyan));
             box-shadow: 0 0 10px var(--blue);
             position: relative;
-            animation: fillBar 1.5s ease-out forwards;
+            animation: fillBar 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
             transform-origin: left;
         }}
         
@@ -269,7 +277,7 @@ html(
             position: absolute;
             top: 0; right: 0; bottom: 0; left: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-            animation: shine 2s infinite linear;
+            animation: shine 3s infinite linear;
         }}
 
         @keyframes fillBar {{
@@ -283,14 +291,43 @@ html(
         }}
 
         /* Plotly charts styling */
-        div[data-testid="stPlotlyChart"] {{ 
-            margin-top: 0.5rem;
+        div[data-testid="stPlotlyChart"], .am-chart-container {{ 
+            height: 235px !important;
+            margin-top: 0 !important;
+            margin-bottom: 0.5rem;
             border-radius: 12px;
             border: 1px solid var(--border);
             overflow: hidden;
             box-shadow: var(--shadow);
             background: var(--chart-bg);
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }}
+        
+        div[data-testid="stPlotlyChart"]:hover, .am-chart-container:hover {{
+            border-color: var(--cyan);
+            box-shadow: 0 10px 20px rgba(32, 214, 255, 0.15);
+        }}
+
+        /* Slow Glow Sweep for idle movement */
+        .glow-sweep-canvas {{
+            position: relative;
+            overflow: hidden;
+        }}
+        .glow-sweep-canvas::after {{
+            content: '';
+            position: absolute;
+            top: 0; left: -150%; width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(32, 214, 255, 0.1), transparent);
+            transform: skewX(-20deg);
+            animation: globalSweep 25s infinite linear;
+            pointer-events: none;
+            z-index: 5;
+        }}
+        @keyframes globalSweep {{
+            0% {{ left: -150%; }}
+            10% {{ left: 150%; }}
+            100% {{ left: 150%; }}
         }}
 
         /* Ratio Cards */
@@ -315,18 +352,18 @@ html(
 
         @keyframes livePulse {{
             0% {{ opacity: 0.4; box-shadow: 0 0 0px var(--green); }}
-            50% {{ opacity: 1; box-shadow: 0 0 10px var(--green); }}
+            50% {{ opacity: 1; box-shadow: 0 0 12px var(--green); }}
             100% {{ opacity: 0.4; box-shadow: 0 0 0px var(--green); }}
         }}
 
         path[fill-opacity="0.155"], path[fill-opacity="0.255"], path[fill-opacity="0.455"],
         path[style*="fill-opacity: 0.155"], path[style*="fill-opacity: 0.255"], path[style*="fill-opacity: 0.455"] {{
-            animation: trendPulse 2s infinite ease-in-out !important;
+            animation: trendPulse 3s infinite ease-in-out !important;
         }}
 
         @keyframes trendPulse {{
             0%   {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
-            50%  {{ opacity: 1.0; filter: brightness(1.8) drop-shadow(0 0 12px {theme_vars["cyan"]}); }}
+            50%  {{ opacity: 1.0; filter: brightness(1.6) drop-shadow(0 0 12px {theme_vars["cyan"]}); }}
             100% {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
         }}
     </style>
@@ -415,49 +452,51 @@ def render_kpi(col, title, value, type_class, delay_class):
 
 def render_ratio(col, title, impl, mod, type_class):
     ratio = (impl / mod) * 100 if mod > 0 else 0
-    ratio = min(ratio, 100)
+    display_ratio = min(ratio, 100)
     
     color = "#00A8E1" if type_class == 'expense' else "#00AD4E"
     
     is_dark = st.session_state.theme == 'dark'
     text_color = "white" if is_dark else "#1e293b"
     title_color = "#a0c4ff" if is_dark else "#475569"
-    grid_alpha = "0.2" if is_dark else "0.1"
     
     with col:
         fig = go.Figure(go.Indicator(
             mode = "gauge+number",
             value = ratio,
-            number = {"suffix": "%", "font": {"size": 28, "color": text_color, "family": "Arial Black"}},
+            number = {"suffix": "%", "font": {"size": 32, "color": text_color, "family": "Arial Black"}},
             title = {"text": title, "font": {"size": 14, "color": title_color}},
+            domain = {'y': [0.15, 1], 'x': [0, 1]},
             gauge = {
-                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": f"rgba(128,128,128,{grid_alpha})"},
-                "bar": {"color": color},
+                "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "gray", "ticklen": 5},
+                "bar": {"color": color, "thickness": 0.45},
                 "bgcolor": "rgba(128,128,128,0.1)",
-                "borderwidth": 2,
-                "bordercolor": "rgba(128,128,128,0.1)",
-                "steps": [
-                    {"range": [0, 100], "color": "rgba(128,128,128,0.05)"}
-                ],
+                "borderwidth": 0,
                 "threshold": {
-                    "line": {"color": text_color, "width": 3},
+                    "line": {"color": "white" if is_dark else "#1e293b", "width": 4},
                     "thickness": 0.75,
                     "value": ratio
                 }
             }
         ))
         
-        
         fig.update_layout(
-            height=210,
-            margin=dict(l=30, r=30, t=50, b=10),
+            height=235,
+            margin=dict(l=35, r=35, t=55, b=30),
             paper_bgcolor="rgba(0,0,0,0)",
-            font={'color': text_color, 'family': "Arial"}
+            font={'color': text_color, 'family': "Arial"},
+            annotations=[
+                {
+                    "text": "Implementation / Modified Law",
+                    "x": 0.5, "y": 0.02,
+                    "xref": "paper", "yref": "paper",
+                    "showarrow": False,
+                    "font": {"size": 10, "color": "#789bc7", "family": "Arial"}
+                }
+            ]
         )
         
-        # Wrapping Plotly gauge in the ratio-card container for style consistency
         st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
-        html(f"<div style='text-align:center; color:#789bc7; font-size:0.8rem; margin-top:-1.5rem; padding-bottom:0.5rem;'>Implementation / Modified Law</div>")
 
 def render_process_row(label, value, target, is_expense=True, custom_gradient=None):
     pct = (value / target * 100) if target > 0 else 0
@@ -522,11 +561,14 @@ def render_process_bar():
     html(
         f'''
         <div class="process-container">
-            <div class="process-title" style="color: {title_color_exp}; margin-bottom: 0.4rem;">Expense Implementation</div>
-            {exp_body}
-            <div style="height: 0.4rem;"></div>
-            <div class="process-title" style="color: {title_color_rev}; margin-bottom: 0.4rem;">Revenue Implementation</div>
-            {rev_body}
+            <div style="width: 100%;">
+                <div class="process-title" style="color: {title_color_exp}; margin-bottom: 0.4rem;">Expense Implementation</div>
+                {exp_body}
+            </div>
+            <div style="width: 100%;">
+                <div class="process-title" style="color: {title_color_rev}; margin-bottom: 0.4rem; margin-top: 0.2rem;">Revenue Implementation</div>
+                {rev_body}
+            </div>
         </div>
         '''
     )
@@ -564,6 +606,12 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     chart_data.reverse()
     chart_json = json.dumps(chart_data)
     
+    # Unique ID for each gauge instance
+    import random
+    import string
+    uid = ''.join(random.choices(string.ascii_lowercase, k=4))
+    chart_uid = f"gauge_{uid}"
+
     is_dark = st.session_state.theme == 'dark'
     bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
     title_color = "#ffffff" if is_dark else "#1e293b"
@@ -578,27 +626,31 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     shadow_val = "0 8px 16px rgba(0,0,0,0.2)" if is_dark else "0 4px 12px rgba(0, 0, 0, 0.12)"
 
     amcharts_html = f"""
-    <div id="am_gauge_container" style="
-        margin-top: 0.5rem;
+    <style>
+        body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
+    </style>
+    <div id="container_{chart_uid}" class="am-chart-container glow-sweep-canvas" style="
+        height: 235px;
+        box-sizing: border-box;
         border-radius: 12px;
         border: 1px solid {border_color};
         overflow: hidden;
         box-shadow: {shadow_val};
         {bg_style}
-        padding: 10px;
+        padding: 15px 15px;
         display: flex;
         flex-direction: column;
         align-items: center;
         transition: border-color 0.3s ease;
         font-family: sans-serif;
     ">
-        <!-- Title matching Plotly styling -->
-        <div style="width: 100%; color: {title_color}; font-size: 13px; font-weight: bold; margin-bottom: 5px; text-align: left; opacity: 1; width: 100%;">
+        <!-- Dashboard-consistent Title -->
+        <div style="width: 100%; color: {title_color}; font-size: 13px; font-weight: bold; margin-bottom: 15px; text-align: left;">
             {title}
         </div>
         
         <!-- The Gauge -->
-        <div id="chartdiv" style="width: 100%; height: 240px;"></div>
+        <div id="{chart_uid}" style="width: 100%; height: 185px;" class="glow-sweep-canvas"></div>
     </div>
     
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
@@ -608,7 +660,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
 
     <script>
     am5.ready(function() {{
-        var root = am5.Root.new("chartdiv");
+        var root = am5.Root.new("{chart_uid}");
 
         root.setThemes([am5themes_Animated.new(root)]);
 
@@ -694,7 +746,9 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         // Value Rings
         var series2 = chart.series.push(am5radar.RadarColumnSeries.new(root, {{
           xAxis: xAxis, yAxis: yAxis, clustered: false,
-          valueXField: "value", categoryYField: "category"
+          valueXField: "value", categoryYField: "category",
+          sequencedInterpolation: true,
+          sequencedDelay: 200
         }}));
         
         series2.columns.template.setAll({{
@@ -707,14 +761,16 @@ def render_top5_gauge_chart(df, title, is_expense=True):
 
         series2.data.setAll(data);
 
-        series1.appear(1000);
-        series2.appear(1000);
-        chart.appear(1000, 100);
+        series2.data.setAll(data);
+
+        series1.appear(1500, 100);
+        series2.appear(1500, 200);
+        chart.appear(1500, 100);
         if(root._logo) {{ root._logo.dispose(); }}
     }}); 
     </script>
     """
-    components.html(amcharts_html, height=300)
+    components.html(amcharts_html, height=235)
 
 def render_top5_chart(df, title, is_expense=True):
     # Only consider positive contributions for Top 5
@@ -774,21 +830,16 @@ def render_top5_chart(df, title, is_expense=True):
         transition={'duration': 1000, 'easing': 'cubic-in-out'}
     )
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
-def render_top5_funnel_chart(df, title, is_expense=True, margin_left=100):
+
+def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     df_sorted = df.sort_values(by="IMPLEMENTATION", ascending=False).head(5)
     # Handle dynamic label column names
     label_col = "SECTOR" if "SECTOR" in df.columns else "BUSINESS_UNIT"
     import textwrap
-    labels = [textwrap.fill(str(l), width=20).replace('\n', '<br>') for l in df_sorted[label_col]]
+    # Tighter wrapping to save horizontal space
+    labels = [textwrap.fill(str(l), width=18).replace('\n', '<br>') for l in df_sorted[label_col]]
     values = df_sorted["IMPLEMENTATION"].tolist()
     
-    # Custom SI formatter for clean labels (T, B, M, K)
-    def format_si(n):
-        if n >= 1e12: return f"{n/1e12:.2f}T"
-        if n >= 1e9:  return f"{n/1e9:.1f}B"
-        if n >= 1e6:  return f"{n/1e6:.1f}M"
-        if n >= 1e3:  return f"{n/1e3:.1f}K"
-    # Generate text labels with actual amount (commas) and KHR suffix
     formatted_text = [f"{v:,.0f} KHR" for v in values]
 
     if is_expense:
@@ -804,7 +855,7 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=100):
         text=formatted_text,
         textinfo="text",
         textposition="auto",
-        textfont={"color": '#ffffff' if st.session_state.theme == 'dark' else '#1e293b', "size": 11, "family": "Arial"},
+        textfont={"color": '#ffffff' if st.session_state.theme == 'dark' else '#1e293b', "size": 10, "family": "Arial"},
         marker={"color": colors, "line": {"width": 1, "color": "rgba(255,255,255,0.2)"}},
         connector={
             "fillcolor": connector_color,
@@ -814,29 +865,30 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=100):
     ))
     
     is_dark = st.session_state.theme == 'dark'
-    text_color = "#ffffff" if is_dark else "#1e293b"
-    label_color = "#dcecff" if is_dark else "#1e293b" # Light black
-    tick_color = "#a0c4ff" if is_dark else "#1e293b"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
+    title_color = "#ffffff" if is_dark else "#1e293b"
+    label_color = "#dcecff" if is_dark else "#1e293b" 
+    border_color = "rgba(92, 132, 184, 0.35)" if is_dark else "#d1d5db"
+    shadow_val = "0 8px 16px rgba(0,0,0,0.2)" if is_dark else "0 4px 12px rgba(0, 0, 0, 0.12)"
 
     fig.update_layout(
-        title={"text": title, "font": {"size": 13, "color": text_color}},
-        height=300, 
-        margin={"l": margin_left, "r": 20, "t": 45, "b": 10}, 
+        title={"text": title, "font": {"size": 11, "color": title_color}},
+        height=235, 
+        margin={"l": margin_left, "r": 20, "t": 30, "b": 10}, 
         paper_bgcolor="rgba(0,0,0,0)", 
         plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 10},
         showlegend=False,
+        transition={'duration': 1200, 'easing': 'cubic-in-out'}
     )
     
-    # Hide all 'dirty' background elements while keeping categories clear
     fig.update_xaxes(visible=False)
     fig.update_yaxes(
         type='category',
         showgrid=False, 
         zeroline=False, 
-        tickfont={"size": 11, "color": tick_color}
+        tickfont={"size": 11, "color": label_color}
     )
-    
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
 def render_combined_monthly_chart(df_exp, df_rev, title):
@@ -1099,7 +1151,8 @@ def render_quarterly_chart(df_exp, df_rev, title):
         legend={
             "orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1,
             "font": {"color": label_color}
-        }
+        },
+        transition={'duration': 1200, 'easing': 'cubic-in-out'}
     )
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
@@ -1152,7 +1205,8 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
             "ticksuffix": " KHR", "tickformat": ".0s", "range": y_range,
             "tickfont": {"color": label_color}
         },
-        showlegend=False
+        showlegend=False,
+        transition={'duration': 1200, 'easing': 'cubic-in-out'}
     )
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
 
@@ -1182,7 +1236,7 @@ with header_col2:
     btn_col, src_col, live_col = st.columns([1.3, 1.2, 0.9])
     
     with btn_col:
-        st.button(f"{theme_icon} {theme_label}", key="theme_toggle", on_click=toggle_theme, use_container_width=True)
+        st.button(f"{theme_icon} {theme_label}", key="theme_toggle", on_click=toggle_theme, width='stretch')
     
     with src_col:
         html(f'''
@@ -1249,3 +1303,28 @@ with b3:
     render_net_summary_chart(rev_summary, exp_summary, "Revenue vs Expense vs Net")
 
 html("<div class='footer-note' style='text-align:center; padding-top:0.5rem; padding-bottom:0.5rem;'>FMIS - Government Expense & Revenue Dashboard | Data Updated: 11-03-2026</div>")
+
+# =========================
+# Interval Loop (Kiosk Mode)
+# =========================
+# Triggers a full page reload every 35 seconds to "redo everything" (animations & data)
+html('''
+    <div id="refresh-indicator" style="
+        position: fixed; 
+        bottom: 0; left: 0; width: 0%; height: 2px; 
+        background: var(--cyan); 
+        z-index: 9999;
+        transition: width 35s linear;
+    "></div>
+    <script>
+        // Start the progress bar animation
+        setTimeout(() => {
+            document.getElementById('refresh-indicator').style.width = '100%';
+        }, 100);
+
+        // Reload the page after 35 seconds
+        setTimeout(() => {
+            window.location.reload();
+        }, 35000);
+    </script>
+''')
