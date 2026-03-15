@@ -67,7 +67,71 @@ def render_ratio(col, title, impl, mod, type_class):
             ]
         )
         
-        st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+        fig.data[0].value = 0 # Start at 0
+        fig.data[0].gauge.threshold.value = 0 # Start at 0
+        fig_json = fig.to_json()
+        
+        import random
+        import string
+        uid = ''.join(random.choices(string.ascii_lowercase, k=4))
+        chart_uid = f"plotly_gauge_{uid}"
+        
+        bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FFFFFF;"
+        border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#e2e8f0"
+        
+        html_str = f"""
+        <style>
+            body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; font-family: Arial, sans-serif; }}
+            .plotly-anim-container {{
+                border-radius: 12px;
+                border: 1px solid {border_color};
+                {bg_style}
+                transition: border-color 0.3s ease;
+                box-sizing: border-box;
+                height: 235px;
+                width: 100%;
+                margin-top: 0.5rem;
+            }}
+            .plotly-anim-container:hover {{
+                border-color: {"#20d6ff" if is_dark else "#3498dc"};
+            }}
+        </style>
+        <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+        <div id="{chart_uid}" class="plotly-anim-container"></div>
+        <script>
+            var fig = {fig_json};
+            var chartDiv = document.getElementById('{chart_uid}');
+            var finalValue = {ratio};
+            
+            Plotly.newPlot(chartDiv, fig.data, fig.layout, {{displayModeBar: false, responsive: true}}).then(function() {{
+                function triggerSweep() {{
+                    Plotly.animate(chartDiv, {{
+                        data: [{{value: finalValue, 'gauge.threshold.value': finalValue}}]
+                    }}, {{
+                        transition: {{
+                            duration: 2000,
+                            easing: 'cubic-in-out'
+                        }},
+                        frame: {{
+                            duration: 2000,
+                            redraw: false
+                        }}
+                    }});
+                }}
+                
+                // Initial sweep
+                setTimeout(triggerSweep, 500);
+                
+                // Repeat every 30s
+                setInterval(function() {{
+                    Plotly.update(chartDiv, {{value: [0], 'gauge.threshold.value': [0]}});
+                    setTimeout(triggerSweep, 100);
+                }}, 30000);
+            }});
+        </script>
+        """
+        
+        components.html(html_str, height=245)
 
 def render_process_row(label, value, target, is_expense=True, custom_gradient=None):
     pct = (value / target * 100) if target > 0 else 0
