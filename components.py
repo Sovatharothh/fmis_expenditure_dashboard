@@ -409,8 +409,8 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     uid = ''.join(random.choices(string.ascii_lowercase, k=4))
     chart_uid = f"plotly_funnel_{uid}"
     
-    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FDFBF7;"
-    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#d1d5db"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FFFFFF;"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#e2e8f0"
     
     html_str = f"""
     <style>
@@ -568,8 +568,8 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         ))
 
     fig.update_layout(
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=300, margin={"l": 20, "r": 20, "t": 40, "b": 10},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.05, "y": 0.95},
+        height=300, margin={"l": 55, "r": 35, "t": 50, "b": 35},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
         xaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": {"color": label_color}},
@@ -580,7 +580,101 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         transition={"duration": 1000, "easing": "cubic-in-out"}
     )
     
-    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+    rev_trace_ids = [0]
+    exp_trace_ids = [1]
+    rev_annot_ids = []
+    exp_annot_ids = []
+    
+    trace_idx = 2
+    annot_idx = 0
+    if rev_values:
+        rev_annot_ids.extend([annot_idx, annot_idx+1])
+        annot_idx += 2
+        rev_trace_ids.extend([trace_idx, trace_idx+1, trace_idx+2])
+        trace_idx += 3
+    if exp_values:
+        exp_annot_ids.extend([annot_idx, annot_idx+1])
+        annot_idx += 2
+        exp_trace_ids.extend([trace_idx, trace_idx+1, trace_idx+2])
+        trace_idx += 3
+
+    fig_json = fig.to_json()
+    
+    import random
+    import string
+    uid = ''.join(random.choices(string.ascii_lowercase, k=4))
+    chart_uid = f"plotly_monthly_{uid}"
+    
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#e2e8f0"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FFFFFF;"
+    
+    html_str = f"""
+    <style>
+        body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; font-family: Arial, sans-serif; }}
+        .plotly-anim-container {{
+            border-radius: 12px;
+            border: 1px solid {border_color};
+            {bg_style}
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+            height: 300px;
+            width: 100%;
+        }}
+        .plotly-anim-container:hover {{
+            border-color: {"#20d6ff" if is_dark else "#3498dc"};
+            box-shadow: 0 10px 20px rgba(32, 214, 255, 0.15);
+        }}
+        .trace {{
+            transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }}
+    </style>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+    <div id="{chart_uid}" class="plotly-anim-container"></div>
+    <script>
+        var fig = {fig_json};
+        var chartDiv = document.getElementById('{chart_uid}');
+        
+        Plotly.newPlot(chartDiv, fig.data, fig.layout, {{displayModeBar: false, responsive: true}}).then(function() {{
+            
+            function setTraceOpacity(expOp, revOp) {{
+                Plotly.restyle(chartDiv, {{'opacity': expOp}}, {exp_trace_ids});
+                Plotly.restyle(chartDiv, {{'opacity': revOp}}, {rev_trace_ids});
+                
+                var update = {{}};
+                var revAnnots = {rev_annot_ids};
+                for(var i=0; i<revAnnots.length; i++) update['annotations[' + revAnnots[i] + '].opacity'] = revOp;
+                
+                var expAnnots = {exp_annot_ids};
+                for(var j=0; j<expAnnots.length; j++) update['annotations[' + expAnnots[j] + '].opacity'] = expOp;
+                
+                if (Object.keys(update).length > 0) {{
+                    Plotly.relayout(chartDiv, update);
+                }}
+            }}
+
+            function runAnim() {{
+                // Stage 1: Focus on Expense (0s)
+                setTraceOpacity(1, 0.15);
+
+                // Stage 2: Focus on Revenue (2s)
+                setTimeout(function() {{
+                    setTraceOpacity(0.15, 1);
+                }}, 2000); // 2s
+
+                // Stage 3: Show Both (4s)
+                setTimeout(function() {{
+                    setTraceOpacity(1, 1);
+                }}, 4000); // 4s
+            }}
+
+            // Start immediately
+            runAnim();
+            // Loop every 30 seconds
+            setInterval(runAnim, 30000);
+        }});
+    </script>
+    """
+    components.html(html_str, height=310)
 
 def render_quarterly_chart(df_exp, df_rev, title):
     df_merged = pd.merge(df_exp, df_rev, on="QUARTER_NAME", suffixes=("_EXP", "_REV"), how="outer")
@@ -665,8 +759,8 @@ def render_quarterly_chart(df_exp, df_rev, title):
     uid = ''.join(random.choices(string.ascii_lowercase, k=4))
     chart_uid = f"plotly_{uid}"
     
-    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#d1d5db"
-    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FDFBF7;"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#e2e8f0"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FFFFFF;"
     
     html_str = f"""
     <style>

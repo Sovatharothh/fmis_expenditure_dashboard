@@ -9,18 +9,18 @@ def apply_custom_styles():
 
     # Define theme colors based on state
     theme_vars = {
-        "bg": "#FAF9F6" if is_light else "#04122b",
-        "panel": "#FAF9F6" if is_light else "#1a2d4a",
-        "card": "#FAF9F6" if is_light else "#374d6c",
+        "bg": "#F0F2F6" if is_light else "#04122b",
+        "panel": "#FFFFFF" if is_light else "#1a2d4a",
+        "card": "#FFFFFF" if is_light else "#374d6c",
         "text": "#1e293b" if is_light else "#e9f2ff",
         "cyan": "#3498dc" if is_light else "#20d6ff",
         "blue": "#3498dc" if is_light else "#00A8E1",
         "green": "#1abc9c" if is_light else "#00AD4E",
-        "border": "#d1d5db" if is_light else "rgba(92, 132, 184, 0.6)",
-        "kpi_bg": "#FDFBF7" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
+        "border": "#e2e8f0" if is_light else "rgba(92, 132, 184, 0.6)",
+        "kpi_bg": "#FFFFFF" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
         "shadow": "none",
-        "app_bg": "#FDFBF7" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
-        "chart_bg": "#FDFBF7" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
+        "app_bg": "#F0F2F6" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
+        "chart_bg": "#FFFFFF" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
     }
 
     html(
