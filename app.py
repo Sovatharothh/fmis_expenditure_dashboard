@@ -256,9 +256,9 @@ html(
             width: 100%;
             height: 12px;
             border-radius: 999px;
-            background: rgba(0, 0, 0, 0.1);
+            background: rgba(0, 0, 0, 0.2) !important;
             overflow: hidden;
-            box-shadow: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.4) !important;
         }}
 
         .process-fill {{
@@ -468,7 +468,7 @@ def render_ratio(col, title, impl, mod, type_class):
             gauge = {
                 "axis": {"range": [0, 100], "tickwidth": 1, "tickcolor": "gray", "ticklen": 5},
                 "bar": {"color": color, "thickness": 0.45},
-                "bgcolor": "rgba(128,128,128,0.1)",
+                "bgcolor": "rgba(128,128,128,0.25)",
                 "borderwidth": 0,
                 "threshold": {
                     "line": {"color": "white" if is_dark else "#1e293b", "width": 4},
@@ -614,7 +614,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
     title_color = "#ffffff" if is_dark else "#1e293b"
     label_color = "#789bc7" if is_dark else "#64748b"
-    track_color = "0x2A3E56" if is_dark else "0xe0e0e0"
+    track_color = "0x1a2d4a" if is_dark else "0xcccccc"
     tooltip_bg = "0x04122b" if is_dark else "0xFAF9F6"
     tooltip_stroke = "0x5c84b8" if is_dark else "0x3498dc"
     text_color_hex = "0xffffff" if is_dark else "0x1e293b"
@@ -661,6 +661,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         var root = am5.Root.new("{chart_uid}");
 
         root.setThemes([am5themes_Animated.new(root)]);
+        root.interfaceColors.set("fontFamily", "Arial, sans-serif");
 
         var chart = root.container.children.push(am5radar.RadarChart.new(root, {{
           panX: false, panY: false, wheelX: "none", wheelY: "none",
@@ -681,7 +682,8 @@ def render_top5_gauge_chart(df, title, is_expense=True):
           radius: 10, 
           fill: am5.color({label_color_hex}), 
           fontSize: 10, 
-          fontWeight: "normal" 
+          fontWeight: "normal",
+          fontFamily: "Arial, sans-serif"
         }});
         xRenderer.grid.template.setAll({{ strokeOpacity: 0.05 }});
 
@@ -700,7 +702,8 @@ def render_top5_gauge_chart(df, title, is_expense=True):
           fontWeight: "normal",
           fontSize: 11,
           fill: am5.color({text_color_hex}),
-          paddingRight: 10
+          paddingRight: 10,
+          fontFamily: "Arial, sans-serif"
         }});
         
         yRenderer.grid.template.setAll({{ forceHidden: true }});
@@ -1021,7 +1024,7 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
     
     # Final Layout Polish
     fig.update_layout(
-        title={"text": title, "font": {"size": 13, "color": text_color, "family": "sans-serif"}},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
         height=250,
         margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", 
@@ -1126,7 +1129,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
     
     fig.update_layout(
         barmode='relative',
-        title={"text": title, "font": {"size": 13, "color": text_color, "family": "sans-serif"}},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
         height=250,
         margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
@@ -1190,7 +1193,7 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
     grid_color = "rgba(255,255,255,0.1)" if is_dark else "rgba(0,0,0,0.1)"
 
     fig.update_layout(
-        title={"text": title, "font": {"size": 13, "color": text_color, "family": "sans-serif"}},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
         height=250, margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 12},
