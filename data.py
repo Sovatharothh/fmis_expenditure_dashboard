@@ -1,0 +1,49 @@
+import pandas as pd
+import os
+
+def load_data(file_name, last_mod_time):
+    file_path = os.path.join("data_set", file_name)
+    xls = pd.ExcelFile(file_path)
+    
+    def get_clean_sheet(sheet_name_hint):
+        sheet = [s for s in xls.sheet_names if sheet_name_hint in s][0]
+        df = pd.read_excel(xls, sheet_name=sheet)
+        df.columns = df.columns.str.strip()
+        if '' in df.columns:
+            df = df.drop(columns=[''])
+        for col in df.columns:
+            if col not in ['GOV_LEVEL', 'MONTH_NAME', 'BUSINESS_UNIT', 'ACCOUNT', 'QUARTER_NAME', 'EXPENDITURE_CATEGORY', 'SECTOR']:
+                if df[col].dtype == 'object':
+                    s = df[col].astype(str).str.strip()
+                    s = s.str.replace(r'[\'"]', '', regex=True)
+                    s = s.str.replace(',', '', regex=True)
+                    s = s.str.replace(r'^\((.*)\)$', r'-\1', regex=True)
+                    s = s.replace('-', '0')
+                    df[col] = pd.to_numeric(s, errors='coerce').fillna(0)
+        return df
+
+    return {
+        "gov": get_clean_sheet("Sheet 1"),
+        "monthly": get_clean_sheet("Sheet 2"),
+        "org": get_clean_sheet("Sheet 3"),
+        "econ": get_clean_sheet("Sheet 4"),
+        "qtr": get_clean_sheet("Sheet 5"),
+    }
+
+def get_last_mod(fname):
+    p = os.path.join("data_set", fname)
+    return os.path.getmtime(p) if os.path.exists(p) else 0
+
+def get_overall(df):
+    row = df[df['GOV_LEVEL'].str.strip() == 'All'].iloc[0]
+    return {
+        "Financial Law": row.get("ORIGINAL_BUDGET", 0),
+        "Modified Law": row.get("CURRENT_BUDGET", 0),
+        "Implementation": row.get("IMPLEMENTATION", 0),
+    }
+
+def get_level(df, level_name):
+    rows = df[df['GOV_LEVEL'].str.strip() == level_name]
+    if not rows.empty:
+        return rows.iloc[0].get("IMPLEMENTATION", 0), rows.iloc[0].get("CURRENT_BUDGET", 1)  # avoid div by 0
+    return 0, 1
