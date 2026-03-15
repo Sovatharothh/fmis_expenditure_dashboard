@@ -46,18 +46,18 @@ is_light = st.session_state.theme == 'light'
 
 # Define theme colors based on state
 theme_vars = {
-    "bg": "#ffffff" if is_light else "#04122b",
-    "panel": "#ffffff" if is_light else "#1a2d4a",
-    "card": "#ffffff" if is_light else "#374d6c",
+    "bg": "#FAF9F6" if is_light else "#04122b",
+    "panel": "#FAF9F6" if is_light else "#1a2d4a",
+    "card": "#FAF9F6" if is_light else "#374d6c",
     "text": "#1e293b" if is_light else "#e9f2ff",
     "cyan": "#3498dc" if is_light else "#20d6ff",
     "blue": "#3498dc" if is_light else "#00A8E1",
     "green": "#1abc9c" if is_light else "#00AD4E",
     "border": "#d1d5db" if is_light else "rgba(92, 132, 184, 0.35)",
-    "kpi_bg": "#ffffff" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
+    "kpi_bg": "#FAF9F6" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
     "shadow": "0 4px 12px rgba(0, 0, 0, 0.12)" if is_light else "0 8px 16px rgba(0,0,0,0.2)",
-    "app_bg": "#ffffff" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
-    "chart_bg": "#ffffff" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
+    "app_bg": "#FAF9F6" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
+    "chart_bg": "#FAF9F6" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
 }
 
 html(
@@ -321,15 +321,13 @@ html(
 
         path[fill-opacity="0.155"], path[fill-opacity="0.255"], path[fill-opacity="0.455"],
         path[style*="fill-opacity: 0.155"], path[style*="fill-opacity: 0.255"], path[style*="fill-opacity: 0.455"] {{
-            animation: lightShockwave 1.4s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+            animation: trendPulse 2s infinite ease-in-out !important;
         }}
 
-        @keyframes lightShockwave {{
-            0%   {{ opacity: 0.2; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
-            15%  {{ opacity: 1.0; filter: brightness(4) drop-shadow(0 0 15px {theme_vars["cyan"]}); }}
-            30%  {{ opacity: 0.6; filter: brightness(1.5) drop-shadow(0 0 5px {theme_vars["cyan"]}); }} 
-            45%  {{ opacity: 1.0; filter: brightness(6) drop-shadow(0 0 25px {theme_vars["cyan"]}); }}
-            100% {{ opacity: 0.2; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
+        @keyframes trendPulse {{
+            0%   {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
+            50%  {{ opacity: 1.0; filter: brightness(1.8) drop-shadow(0 0 12px {theme_vars["cyan"]}); }}
+            100% {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
         }}
     </style>
     '''
@@ -567,11 +565,11 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     chart_json = json.dumps(chart_data)
     
     is_dark = st.session_state.theme == 'dark'
-    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #ffffff;"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
     title_color = "#ffffff" if is_dark else "#1e293b"
     label_color = "#789bc7" if is_dark else "#64748b"
     track_color = "0x2A3E56" if is_dark else "0xe0e0e0"
-    tooltip_bg = "0x04122b" if is_dark else "0xffffff"
+    tooltip_bg = "0x04122b" if is_dark else "0xFAF9F6"
     tooltip_stroke = "0x5c84b8" if is_dark else "0x3498dc"
     text_color_hex = "0xffffff" if is_dark else "0x1e293b"
     label_color_hex = "0x789bc7" if is_dark else "0x475569"
@@ -1237,7 +1235,7 @@ with c1:
 with c2:
     render_top5_funnel_chart(exp_data["org"], "Implementation by Sectors (Expense)", is_expense=True, margin_left=100)
 with c3:
-    render_top5_chart(rev_data["econ"], "Top 5 implementation by Economic Class (Revenue)", is_expense=False)
+    render_top5_gauge_chart(rev_data["econ"], "Top 5 implementation by Economic Class (Revenue)", is_expense=False)
 with c4:
     render_top5_funnel_chart(rev_data["org"], "Top 5 implementation by Organizations (Revenue)", is_expense=False, margin_left=60)
 
