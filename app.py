@@ -290,7 +290,6 @@ html(
 
         /* Plotly charts styling */
         div[data-testid="stPlotlyChart"], .am-chart-container {{ 
-            height: 235px !important;
             margin-top: 0 !important;
             margin-bottom: 0.5rem;
             border-radius: 12px;
@@ -628,7 +627,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
     </style>
     <div id="container_{chart_uid}" class="am-chart-container glow-sweep-canvas" style="
-        height: 235px;
+        height: 240px;
         box-sizing: border-box;
         border-radius: 12px;
         border: 1.5px solid {border_color};
@@ -648,7 +647,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         </div>
         
         <!-- The Gauge -->
-        <div id="{chart_uid}" style="width: 100%; height: 185px;" class="glow-sweep-canvas"></div>
+        <div id="{chart_uid}" style="width: 100%; height: 190px;" class="glow-sweep-canvas"></div>
     </div>
     
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
@@ -666,7 +665,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         var chart = root.container.children.push(am5radar.RadarChart.new(root, {{
           panX: false, panY: false, wheelX: "none", wheelY: "none",
           paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0,
-          innerRadius: am5.percent(30),
+          innerRadius: am5.percent(20),
           startAngle: -90,
           endAngle: 180
         }}));
@@ -700,9 +699,9 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         yRenderer.labels.template.setAll({{
           centerX: am5.p100,
           fontWeight: "normal",
-          fontSize: 11,
+          fontSize: 10,
           fill: am5.color({text_color_hex}),
-          paddingRight: 10,
+          paddingRight: 12,
           fontFamily: "Arial, sans-serif"
         }});
         
@@ -720,7 +719,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
           valueXField: "full", categoryYField: "category",
           fill: am5.color({track_color}), fillOpacity: 0.5
         }}));
-        series1.columns.template.setAll({{ width: am5.percent(85), strokeOpacity: 0, cornerRadius: 20 }});
+        series1.columns.template.setAll({{ width: am5.percent(70), strokeOpacity: 0, cornerRadius: 20 }});
         series1.data.setAll(data);
 
         // Tooltip Styling
@@ -753,7 +752,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         }}));
         
         series2.columns.template.setAll({{
-          width: am5.percent(85), strokeOpacity: 0,
+          width: am5.percent(70), strokeOpacity: 0,
           cornerRadius: 20,
           templateField: "columnSettings",
           tooltipText: "[bold]{{category}}[/]\\nImplementation: {{impl}}\\nModified Law: {{target}}\\nRatio: {{valueX}}%",
@@ -771,7 +770,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     }}); 
     </script>
     """
-    components.html(amcharts_html, height=235)
+    components.html(amcharts_html, height=240)
 
 def render_top5_chart(df, title, is_expense=True):
     # Only consider positive contributions for Top 5
@@ -874,7 +873,7 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
 
     fig.update_layout(
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": title_color, "family": "Arial"}, "x": 0.05, "y": 0.92},
-        height=235, 
+        height=240, 
         margin={"l": margin_left + 15, "r": 30, "t": 60, "b": 15}, 
         paper_bgcolor="rgba(0,0,0,0)", 
         plot_bgcolor="rgba(0,0,0,0)",
@@ -1025,7 +1024,7 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
     # Final Layout Polish
     fig.update_layout(
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=250,
+        height=255,
         margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", 
         plot_bgcolor="rgba(0,0,0,0)",
@@ -1130,7 +1129,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
     fig.update_layout(
         barmode='relative',
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=250,
+        height=255,
         margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
@@ -1194,7 +1193,7 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
 
     fig.update_layout(
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=250, margin={"l": 20, "r": 20, "t": 40, "b": 10},
+        height=255, margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 12},
         xaxis={
