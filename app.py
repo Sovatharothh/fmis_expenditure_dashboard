@@ -627,7 +627,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
     </style>
     <div id="container_{chart_uid}" class="am-chart-container glow-sweep-canvas" style="
-        height: 240px;
+        height: 300px;
         box-sizing: border-box;
         border-radius: 12px;
         border: 1.5px solid {border_color};
@@ -647,7 +647,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         </div>
         
         <!-- The Gauge -->
-        <div id="{chart_uid}" style="width: 100%; height: 190px;" class="glow-sweep-canvas"></div>
+        <div id="{chart_uid}" style="width: 100%; height: 250px;" class="glow-sweep-canvas"></div>
     </div>
     
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
@@ -775,7 +775,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     }}); 
     </script>
     """
-    components.html(amcharts_html, height=240)
+    components.html(amcharts_html, height=300)
 
 def render_top5_chart(df, title, is_expense=True):
     # Only consider positive contributions for Top 5
@@ -878,7 +878,7 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
 
     fig.update_layout(
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": title_color, "family": "Arial"}, "x": 0.05, "y": 0.92},
-        height=240, 
+        height=300, 
         margin={"l": margin_left + 15, "r": 30, "t": 60, "b": 15}, 
         paper_bgcolor="rgba(0,0,0,0)", 
         plot_bgcolor="rgba(0,0,0,0)",
@@ -1029,7 +1029,7 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
     # Final Layout Polish
     fig.update_layout(
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=255,
+        height=300,
         margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", 
         plot_bgcolor="rgba(0,0,0,0)",
@@ -1134,7 +1134,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
     fig.update_layout(
         barmode='relative',
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=255,
+        height=300,
         margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
@@ -1198,7 +1198,7 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
 
     fig.update_layout(
         title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
-        height=255, margin={"l": 20, "r": 20, "t": 40, "b": 10},
+        height=300, margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 12},
         xaxis={
