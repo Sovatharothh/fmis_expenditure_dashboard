@@ -54,11 +54,11 @@ theme_vars = {
     "cyan": "#3498dc" if is_light else "#20d6ff",
     "blue": "#3498dc" if is_light else "#00A8E1",
     "green": "#1abc9c" if is_light else "#00AD4E",
-    "border": "#94a3b8" if is_light else "rgba(92, 132, 184, 0.6)",
-    "kpi_bg": "#FAF9F6" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
+    "border": "#d1d5db" if is_light else "rgba(92, 132, 184, 0.6)",
+    "kpi_bg": "#FDFBF7" if is_light else "linear-gradient(135deg, rgba(58, 77, 108, 0.95), rgba(26, 45, 74, 0.95))",
     "shadow": "none",
-    "app_bg": "#FAF9F6" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
-    "chart_bg": "#FAF9F6" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
+    "app_bg": "#FDFBF7" if is_light else "linear-gradient(180deg, #020c1c 0%, #061731 100%)",
+    "chart_bg": "#FDFBF7" if is_light else "linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4))",
 }
 
 html(
@@ -152,7 +152,7 @@ html(
             display: flex;
             flex-direction: column;
             justify-content: center;
-            border: 1.5px solid var(--border);
+            border: 1px solid var(--border);
             box-shadow: none;
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
@@ -217,8 +217,8 @@ html(
         .process-container {{
             background: var(--panel);
             border-radius: 12px;
-            padding: 1rem;
-            border: 1.5px solid var(--border);
+            padding: 1.2rem;
+            border: 1px solid var(--border);
             height: 360px;
             box-sizing: border-box;
             display: flex;
@@ -293,7 +293,7 @@ html(
             margin-top: 0 !important;
             margin-bottom: 0.5rem;
             border-radius: 12px;
-            border: 1.5px solid var(--border);
+            border: 1px solid var(--border);
             overflow: hidden;
             box-shadow: none;
             background: var(--chart-bg);
@@ -488,7 +488,7 @@ def render_ratio(col, title, impl, mod, type_class):
                     "x": 0.5, "y": 0.02,
                     "xref": "paper", "yref": "paper",
                     "showarrow": False,
-                    "font": {"size": 10, "color": "#789bc7", "family": "Arial"}
+                    "font": {"size": 13, "color": "#789bc7", "family": "Arial"}
                 }
             ]
         )
@@ -610,16 +610,16 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     chart_uid = f"gauge_{uid}"
 
     is_dark = st.session_state.theme == 'dark'
-    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FDFBF7;"
     title_color = "#ffffff" if is_dark else "#1e293b"
     label_color = "#789bc7" if is_dark else "#64748b"
     track_color = "0x1a2d4a" if is_dark else "0xcccccc"
-    tooltip_bg = "0x04122b" if is_dark else "0xFAF9F6"
+    tooltip_bg = "0x04122b" if is_dark else "0xFDFBF7"
     tooltip_stroke = "0x5c84b8" if is_dark else "0x3498dc"
     text_color_hex = "0xffffff" if is_dark else "0x1e293b"
     label_color_hex = "0x789bc7" if is_dark else "0x475569"
 
-    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#94a3b8"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#d1d5db"
     shadow_val = "0 8px 16px rgba(0,0,0,0.2)" if is_dark else "0 4px 12px rgba(0, 0, 0, 0.12)"
 
     amcharts_html = f"""
@@ -630,7 +630,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         height: 300px;
         box-sizing: border-box;
         border-radius: 12px;
-        border: 1.5px solid {border_color};
+        border: 1px solid {border_color};
         overflow: hidden;
         box-shadow: none;
         {bg_style}
@@ -870,10 +870,10 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     ))
     
     is_dark = st.session_state.theme == 'dark'
-    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FAF9F6;"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FDFBF7;"
     title_color = "#ffffff" if is_dark else "#1e293b"
     label_color = "#dcecff" if is_dark else "#1e293b" 
-    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#94a3b8"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#d1d5db"
     shadow_val = "none"
 
     fig.update_layout(
