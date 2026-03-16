@@ -109,12 +109,12 @@ implementation_data AS (
       AND SUBSTR(a.account, 1, 2) IN ('21','60','61','62','63','65','66')
     GROUP BY
         CASE
-            WHEN SUBSTR(a.account, 1, 2) = '60' THEN 'Staff Charges'
-            WHEN SUBSTR(a.account, 1, 2) = '61' THEN 'Operating Expenditures'
-            WHEN SUBSTR(a.account, 1, 2) = '21' THEN 'Investment Expenditure'
+            WHEN SUBSTR(a.account, 1, 2) = '64' THEN 'Staff Charges'
+            WHEN SUBSTR(a.account, 1, 2) IN ('60', '61') THEN 'Operating Expenditures'
+            WHEN SUBSTR(a.account, 1, 1) = '2' THEN 'Investment Expenditure'
             WHEN SUBSTR(a.account, 1, 2) = '66' THEN 'Financial Charges'
             WHEN SUBSTR(a.account, 1, 2) IN ('62', '65') THEN 'Transfer Expenditure'
-            WHEN SUBSTR(a.account, 1, 2) = '63' THEN 'Other Expenditure'
+            WHEN (SUBSTR(a.account, 1, 2) IN ('63', '67', '68', '69') or a.account like '7009%') THEN 'Other Expenditure'
         END
 )
 

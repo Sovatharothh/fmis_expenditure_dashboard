@@ -8,12 +8,12 @@ FROM (
         a.monetary_amount,
         CASE
             WHEN a.business_unit IN (
-                '01000','02000','03000','04000','51000','54000',
+                '01000','02000','03000','04000','51000','54000', '37000',
                 '08000','09000','10000','14000','28000','30000',
                 '31000','33000','34000'
             ) THEN 'General Administration Sector'
 
-            WHEN a.business_unit IN ('06000','71000','72000','26000')
+            WHEN a.business_unit IN ('06000','71000','72000','26000', '36000')
             THEN 'National Defense and Security Sector'
 
             WHEN a.business_unit IN (
@@ -47,13 +47,13 @@ ORDER BY sector, business_unit;
 SELECT
     CASE
         WHEN a.business_unit IN (
-            '01000','02000','03000','04000','51000',
+            '01000','02000','03000','04000','51000', '37000',
             '54000','08000','09000','10000','14000',
             '28000','30000','31000','33000','34000'
         ) THEN 'General Administration Sector'
 
         WHEN a.business_unit IN (
-            '06000','71000','72000','26000'
+            '06000','71000','72000','26000', '36000'
         ) THEN 'National Defense and Security Sector'
 
         WHEN a.business_unit IN (
@@ -86,13 +86,13 @@ WHERE a.accounting_dt >= DATE '2025-01-01'
 GROUP BY
     CASE
         WHEN a.business_unit IN (
-            '01000','02000','03000','04000','51000',
+            '01000','02000','03000','04000','51000', '37000',
             '54000','08000','09000','10000','14000',
             '28000','30000','31000','33000','34000'
         ) THEN 'General Administration Sector'
 
         WHEN a.business_unit IN (
-            '06000','71000','72000','26000'
+            '06000','71000','72000','26000', '36000'
         ) THEN 'National Defense and Security Sector'
 
         WHEN a.business_unit IN (

@@ -1,8 +1,8 @@
 SELECT
     CASE
-        WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
-        WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-        ELSE 'Sub-national'
+        WHEN a.business_unit LIKE 'E%' THEN 'APE'
+        WHEN REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
+        WHEN NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
     END AS gov_level,
 
     -SUM(CASE 
@@ -53,9 +53,9 @@ WHERE hdr.ledger_group = 'CCRVGROUP'
 
 GROUP BY
     CASE
-        WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
-        WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-        ELSE 'Sub-national'
-    END
+        WHEN a.business_unit LIKE 'E%' THEN 'APE'
+        WHEN REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
+        WHEN NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
+    END AS gov_level,
 
 ORDER BY gov_level;
