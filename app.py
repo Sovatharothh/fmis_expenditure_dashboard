@@ -68,14 +68,14 @@ with header_col2:
     
     with src_col:
         html(f'''
-            <div style="background: rgba(32, 214, 255, 0.1); border: 1px solid rgba(32, 214, 255, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #20d6ff; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(4px); text-align: center; height: 38px; display: flex; align-items: center; justify-content: center;">
+            <div style="background: rgba(32, 214, 255, 0.1); border: 1px solid rgba(32, 214, 255, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #20d6ff; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; text-align: center; height: 38px; display: flex; align-items: center; justify-content: center;">
                 Source: FMIS
             </div>
         ''')
         
     with live_col:
         html(f'''
-            <div style="background: rgba(0, 173, 78, 0.1); border: 1px solid rgba(0, 173, 78, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #00AD4E; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.4rem; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(4px); height: 38px;">
+            <div style="background: rgba(0, 173, 78, 0.1); border: 1px solid rgba(0, 173, 78, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #00AD4E; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.4rem; letter-spacing: 1px; text-transform: uppercase; height: 38px;">
                 <span style="width: 7px; height: 7px; background: #00AD4E; border-radius: 50%; box-shadow: 0 0 8px #00AD4E; animation: livePulse 2s infinite ease-in-out;"></span>
                 Live
             </div>
@@ -106,18 +106,18 @@ with top_right:
     )
 
 # Middle Section
-c1, c2, c3, c4 = st.columns(4, gap="large")
+c1, c2, c3, c4 = st.columns(4, gap="small")
 with c1:
     comp.render_top5_gauge_chart(exp_data["econ"], "Modified Law vs Implementation by Expense Types", is_expense=True)
 with c2:
-    comp.render_top5_funnel_chart(exp_data["org"], "Implementation by Sectors (Expense)", is_expense=True, margin_left=100)
+    comp.render_top5_funnel_chart(exp_data["org"], "Implementation by Sectors (Expense)", is_expense=True, margin_left=95)
 with c3:
-    comp.render_top5_gauge_chart(rev_data["econ"], "Top 5 implementation by Economic Class (Revenue)", is_expense=False)
+    comp.render_top5_gauge_chart(rev_data["econ"], "Implementation by Economic Class (Revenue)", is_expense=False)
 with c4:
-    comp.render_top5_funnel_chart(rev_data["org"], "Top 5 implementation by Organizations (Revenue)", is_expense=False, margin_left=60)
+    comp.render_top5_funnel_chart(rev_data["org"], "Top 5 implementation by Organizations (Revenue)", is_expense=False, margin_left=55)
 
 # Bottom Section
-b1, b2, b3 = st.columns([10, 12, 8], gap="large")
+b1, b2, b3 = st.columns([10, 12, 8], gap="small")
 with b1:
     comp.render_combined_monthly_chart(exp_data["monthly"], rev_data["monthly"], "Monthly Trend (Rev vs Exp)")
 with b2:

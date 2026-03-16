@@ -157,7 +157,6 @@ def apply_custom_styles():
                 line-height: 1;
                 color: var(--text);
                 margin-bottom: 0.2rem;
-                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
             }}
 
             /* Animations */
@@ -253,7 +252,7 @@ def apply_custom_styles():
             /* Plotly charts styling */
             div[data-testid="stPlotlyChart"], .am-chart-container {{ 
                 margin-top: 0 !important;
-                margin-bottom: 0.5rem;
+                margin-bottom: 0.2rem;
                 border-radius: 12px;
                 border: 1px solid var(--border);
                 overflow: hidden;
@@ -289,6 +288,7 @@ def apply_custom_styles():
                 100% {{ left: 150%; }}
             }}
 
+
             /* Ratio Cards */
             .ratio-card {{
                 background: var(--panel);
@@ -321,9 +321,9 @@ def apply_custom_styles():
             }}
 
             @keyframes trendPulse {{
-                0%   {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
-                50%  {{ opacity: 1.0; filter: brightness(1.6) drop-shadow(0 0 12px {theme_vars["cyan"]}); }}
-                100% {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px {theme_vars["cyan"]}); }}
+                0%   {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px var(--cyan)); }}
+                50%  {{ opacity: 1.0; filter: brightness(1.6) drop-shadow(0 0 12px var(--cyan)); }}
+                100% {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px var(--cyan)); }}
             }}
         </style>
         '''

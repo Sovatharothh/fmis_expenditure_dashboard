@@ -25,6 +25,6 @@ WHERE hdr.business_unit = line.business_unit
   AND hdr.accounting_period BETWEEN 1 AND 12
   AND hdr.jrnl_hdr_status = 'P'
   AND line.jrnl_line_source <> 'CLO'
-  AND (line.account LIKE '2%' OR line.account LIKE '7%')
+  AND (line.account LIKE '7%' OR line.account not LIKE '76061%')
 GROUP BY hdr.accounting_period
 ORDER BY hdr.accounting_period;

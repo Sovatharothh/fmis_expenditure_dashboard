@@ -36,7 +36,7 @@ WHERE hdr.ledger_group = 'CCEXGROUP'
   AND hdr.fiscal_year = 2025
   AND hdr.unpost_seq = 0
   AND line.budget_ref <> 'SUBSIDY'
-  AND (line.account LIKE '2%' OR line.account LIKE '6%' OR line.account = '70091')
+  AND (line.account LIKE '2%' OR line.account LIKE '6%' or line.account not like '66981' OR line.account = '70091')
   AND (
         hdr.bd_hdr_status = 'P'
         OR (

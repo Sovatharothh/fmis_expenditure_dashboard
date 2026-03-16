@@ -3,7 +3,7 @@ SELECT
         WHEN a.business_unit LIKE 'E%' THEN 'APE'
         WHEN REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
         WHEN NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-    END AS gov_level,
+    END
 
     -SUM(CASE 
             WHEN hdr.kk_budg_trans_type = '0'
@@ -56,6 +56,5 @@ GROUP BY
         WHEN a.business_unit LIKE 'E%' THEN 'APE'
         WHEN REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
         WHEN NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-    END AS gov_level,
-
+    END
 ORDER BY gov_level;

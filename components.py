@@ -200,20 +200,37 @@ def render_process_bar(exp_nat_impl, exp_nat_mod, exp_sub_impl, exp_sub_mod, rev
     )
 
 def render_top5_gauge_chart(df, title, is_expense=True):
-    df_sorted = df.sort_values(by="IMPLEMENTATION", ascending=False).head(5)
+    # Mapping for requested custom order
+    preferred_order = [
+        "Staff Charges",
+        "Operating Expenditures",
+        "Financial Charges",
+        "Investment Expenditure",
+        "Transfer Expenditure",
+        "Other Expenditure"
+    ]
     
+    label_col = "EXPENDITURE_CATEGORY" if "EXPENDITURE_CATEGORY" in df.columns else "ACCOUNT"
+    df_sorted = df[df[label_col].isin(preferred_order)].copy()
+    df_sorted['sort_idx'] = df_sorted[label_col].map({v: i for i, v in enumerate(preferred_order)})
+    df_sorted = df_sorted.sort_values('sort_idx').head(6)
+    
+    if df_sorted.empty:
+        df_sorted = df.sort_values(by="IMPLEMENTATION", ascending=False).head(5)
+
     if is_expense:
-        color_palette = ['#00A8E1', '#1A7BB8', '#33B9E7', '#66CBED', '#a0c4ff']
+        color_palette = ['#00A8E1', '#1A7BB8', '#33B9E7', '#56C1E8', '#80D4F2', '#A2E9FF']
     else:
-        color_palette = ['#00AD4E', '#11ba7a', '#20d6a2', '#4adeb5', '#8affc2']
+        color_palette = ['#00863D', '#00AD4E', '#14C85D', '#32D475', '#52E08E', '#72ECA7']
     
     chart_data = []
     for i, row in enumerate(df_sorted.itertuples()):
         impl = float(getattr(row, "IMPLEMENTATION", 0))
         target = float(getattr(row, "MODIFIED_LAW", getattr(row, "CURRENT_BUDGET", 1)))
         pct = (impl / target * 100) if target > 0 else 0
+        import textwrap
         label_val = getattr(row, "EXPENDITURE_CATEGORY", getattr(row, "ACCOUNT", "Unknown"))
-        label = str(label_val)
+        label = textwrap.fill(str(label_val), width=22)
         
         chart_data.append({
             "category": label,
@@ -233,105 +250,88 @@ def render_top5_gauge_chart(df, title, is_expense=True):
     chart_uid = f"gauge_{uid}"
 
     is_dark = st.session_state.theme == 'dark'
-    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FDFBF7;"
+    bg_style = "background: linear-gradient(135deg, rgba(26, 45, 74, 0.4), rgba(4, 18, 43, 0.4));" if is_dark else "background: #FFFFFF;"
     title_color = "#ffffff" if is_dark else "#1e293b"
-    label_color = "#789bc7" if is_dark else "#64748b"
     track_color = "0x1a2d4a" if is_dark else "0xcccccc"
-    tooltip_bg = "0x04122b" if is_dark else "0xFDFBF7"
+    tooltip_bg = "0x04122b" if is_dark else "0xFFFFFF"
     tooltip_stroke = "0x5c84b8" if is_dark else "0x3498dc"
     text_color_hex = "0xffffff" if is_dark else "0x1e293b"
-    label_color_hex = "0x789bc7" if is_dark else "0x475569"
-    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#d1d5db"
+    label_color_hex = "0xffffff" if is_dark else "0x1e293b"
+    border_color = "rgba(92, 132, 184, 0.6)" if is_dark else "#e2e8f0"
 
     amcharts_html = f"""
     <style>
-        body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; }}
+        body {{ margin: 0; padding: 0; background-color: transparent; overflow: hidden; font-family: Arial, sans-serif; }}
+        .am-chart-container {{
+            height: 300px;
+            box-sizing: border-box;
+            border-radius: 12px;
+            border: 1px solid {border_color};
+            {bg_style}
+            padding: 8px 12px 0px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }}
     </style>
-    <div id="container_{chart_uid}" class="am-chart-container glow-sweep-canvas" style="
-        height: 300px;
-        box-sizing: border-box;
-        border-radius: 12px;
-        border: 1px solid {border_color};
-        overflow: hidden;
-        box-shadow: none;
-        {bg_style}
-        padding: 20px 22px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transition: border-color 0.3s ease;
-        font-family: sans-serif;
-    ">
-        <div style="width: 100%; color: {title_color}; font-size: 14px; font-weight: bold; margin-bottom: 18px; text-align: left; font-family: Arial, sans-serif;">
+    <div id="container_{chart_uid}" class="am-chart-container glow-sweep-canvas">
+        <div style="width: 100%; color: {title_color}; font-size: 14px; font-weight: 800; margin-bottom: 2px; text-align: left; padding-left: 5px; font-family: Arial, sans-serif;">
             {title}
         </div>
-        <div id="{chart_uid}" style="width: 100%; height: 250px;" class="glow-sweep-canvas"></div>
+        <div id="{chart_uid}" style="width: 100%; height: 270px;"></div>
     </div>
     
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/xy.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/radar.js"></script>
     <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
-
     <script>
     am5.ready(function() {{
         var root = am5.Root.new("{chart_uid}");
-
         root.setThemes([am5themes_Animated.new(root)]);
-        root.interfaceColors.set("fontFamily", "Arial, sans-serif");
 
         var chart = root.container.children.push(am5radar.RadarChart.new(root, {{
           panX: false, panY: false, wheelX: "none", wheelY: "none",
-          paddingTop: 0, paddingBottom: 0, paddingLeft: 0, paddingRight: 0,
-          innerRadius: am5.percent(20),
+          innerRadius: am5.percent(30),
           startAngle: -90,
-          endAngle: 180
+          endAngle: 180,
+          paddingTop: 0,
+          paddingBottom: 0
         }}));
-
-        var data = {chart_json};
 
         var xRenderer = am5radar.AxisRendererCircular.new(root, {{
           strokeOpacity: 0.1,
-          minGridDistance: 50
+          minGridDistance: 80
         }});
         xRenderer.labels.template.setAll({{ 
-          radius: 10, 
-          fill: am5.color({label_color_hex}), 
-          fontSize: 10, 
-          fontWeight: "normal",
-          fontFamily: "Arial, sans-serif"
+          radius: 15, fill: am5.color({label_color_hex}), fontSize: 10, fontFamily: "Arial, sans-serif", fontWeight: "500",
+          letterSpacing: 2.0
         }});
-        xRenderer.grid.template.setAll({{ strokeOpacity: 0.05 }});
 
         var xAxis = chart.xAxes.push(am5xy.ValueAxis.new(root, {{
-          renderer: xRenderer, min: 0, max: 100,
-          strictMinMax: true, numberFormat: "#'%'",
+          renderer: xRenderer, min: 0, max: 100, strictMinMax: true, numberFormat: "#'%'",
         }}));
 
         var yRenderer = am5radar.AxisRendererRadial.new(root, {{ minGridDistance: 1 }});
         yRenderer.labels.template.setAll({{
-          centerX: am5.p100,
-          fontWeight: "normal",
-          fontSize: 10,
-          fill: am5.color({text_color_hex}),
-          paddingRight: 12,
-          fontFamily: "Arial, sans-serif"
+          centerX: am5.p100, fontWeight: "500", fontSize: 10, fill: am5.color({label_color_hex}), 
+          paddingRight: 20, fontFamily: "Arial, sans-serif",
+          multiLine: true, width: 130, textAlign: "right",
+          letterSpacing: 2.0
         }});
         yRenderer.grid.template.setAll({{ forceHidden: true }});
 
         var yAxis = chart.yAxes.push(am5xy.CategoryAxis.new(root, {{
-          categoryField: "category",
-          renderer: yRenderer
+          categoryField: "category", renderer: yRenderer
         }}));
-        yAxis.data.setAll(data);
+        yAxis.data.setAll({chart_json});
 
         var series1 = chart.series.push(am5radar.RadarColumnSeries.new(root, {{
-          xAxis: xAxis, yAxis: yAxis, clustered: false,
-          valueXField: "full", categoryYField: "category",
-          fill: am5.color({track_color}), fillOpacity: 0.5
+          xAxis: xAxis, yAxis: yAxis, clustered: false, valueXField: "full", categoryYField: "category",
+          fill: am5.color({track_color}), fillOpacity: 0.45
         }}));
-        series1.columns.template.setAll({{ width: am5.percent(70), strokeOpacity: 0, cornerRadius: 20 }});
-        series1.data.setAll(data);
+        series1.columns.template.setAll({{ width: am5.percent(100), strokeOpacity: 0, cornerRadius: 20 }});
+        series1.data.setAll({chart_json});
 
         var tooltip = am5.Tooltip.new(root, {{
           getFillFromSprite: false,
@@ -348,21 +348,15 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         }});
 
         var series2 = chart.series.push(am5radar.RadarColumnSeries.new(root, {{
-          xAxis: xAxis, yAxis: yAxis, clustered: false,
-          valueXField: "value", categoryYField: "category",
-          sequencedInterpolation: true,
-          sequencedDelay: 200
+          xAxis: xAxis, yAxis: yAxis, clustered: false, valueXField: "value", categoryYField: "category",
+          sequencedInterpolation: true
         }}));
-        
         series2.columns.template.setAll({{
-          width: am5.percent(70), strokeOpacity: 0,
-          cornerRadius: 20,
-          templateField: "columnSettings",
+          width: am5.percent(100), strokeOpacity: 0, cornerRadius: 20, templateField: "columnSettings",
           tooltipText: "[bold]{{category}}[/]\\nImplementation: {{impl}}\\nModified Law: {{target}}\\nRatio: {{valueX}}%",
           tooltip: tooltip
         }});
-
-        series2.data.setAll(data);
+        series2.data.setAll({chart_json});
 
         function redoAnimation() {{
             series1.appear(1500, 100);
@@ -373,57 +367,10 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         redoAnimation();
         setInterval(redoAnimation, 30000);
         if(root._logo) {{ root._logo.dispose(); }}
-    }}); 
+    }});
     </script>
     """
-    components.html(amcharts_html, height=300)
-
-def render_top5_chart(df, title, is_expense=True):
-    df = df[df["IMPLEMENTATION"] > 0].copy()
-    df_sorted = df.sort_values(by="IMPLEMENTATION", ascending=True).tail(5)
-    
-    label_col = "EXPENDITURE_CATEGORY" if "EXPENDITURE_CATEGORY" in df.columns else "ACCOUNT"
-    categories = df_sorted[label_col].astype(str).tolist()
-    values = df_sorted["IMPLEMENTATION"].tolist()
-    
-    base_color = '#00A8E1' if is_expense else '#00AD4E'
-    max_val = max(values) if values else 1
-    
-    fig = go.Figure()
-    fig.add_trace(go.Bar(
-        y=categories, x=values, orientation='h',
-        marker={"color": base_color, "line": {"color": 'rgba(255,255,255,0.2)', "width": 1}},
-        text=[f"{v:,.0f} KHR" for v in values],
-        textposition='outside',
-        cliponaxis=False,
-        hovertemplate='<b>%{y}</b><br>Amount: %{x:,.0f} KHR<extra></extra>'
-    ))
-    
-    is_dark = st.session_state.theme == 'dark'
-    text_color = "#ffffff" if is_dark else "#1e293b"
-    label_color = "#dcecff" if is_dark else "#1e293b"
-    data_label_color = "white" if is_dark else "#1e293b"
-    grid_color = "rgba(255,255,255,0.05)" if is_dark else "rgba(0,0,0,0.05)"
-
-    fig.update_traces(textfont_color=data_label_color)
-
-    fig.update_layout(
-        title={"text": title, "font": {"size": 13, "color": text_color, "family": "sans-serif"}},
-        height=300,
-        margin={"l": 45, "r": 0, "t": 40, "b": 10}, 
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-        font={"color": label_color, "size": 11},
-        xaxis={
-            "showline": False, "showgrid": True, "gridcolor": grid_color, 
-            "ticksuffix": " KHR", "tickformat": ".0s",
-            "range": [0, max_val * 1.8],
-            "tickfont": {"color": label_color}
-        },
-        yaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": {"color": label_color}},
-        showlegend=False,
-        transition={'duration': 1000, 'easing': 'cubic-in-out'}
-    )
-    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+    components.html(amcharts_html, height=310)
 
 def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     df_sorted = df.sort_values(by="IMPLEMENTATION", ascending=False).head(5)
@@ -435,11 +382,11 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     formatted_text = [f"{v:,.0f} KHR" for v in values]
 
     if is_expense:
-        colors = ['#00A8E1', '#1A7BB8', '#33B9E7', '#66CBED', '#a0c4ff']
-        connector_color = "rgba(0, 168, 225, 0.15)"
+        colors = ['#00A8E1', '#1A7BB8', '#33B9E7', '#66CBED', '#80D4F2']
+        connector_color = "rgba(0, 168, 225, 0.35)"
     else:
-        colors = ['#00AD4E', '#11ba7a', '#20d6a2', '#4adeb5', '#8affc2']
-        connector_color = "rgba(0, 173, 78, 0.15)"
+        colors = ['#00863D', '#00AD4E', '#14C85D', '#32D475', '#52E08E']
+        connector_color = "rgba(0, 173, 78, 0.35)"
         
     fig = go.Figure(go.Funnel(
         y=labels, x=values, text=formatted_text, textinfo="text", textposition="auto",
@@ -505,7 +452,7 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
         }}
     </style>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
-    <div id="{chart_uid}" class="plotly-anim-container"></div>
+    <div id="{chart_uid}" class="plotly-anim-container glow-sweep-canvas"></div>
     <script>
         var fig = {fig_json};
         var chartDiv = document.getElementById('{chart_uid}');
