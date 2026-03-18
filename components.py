@@ -407,8 +407,16 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 10},
         showlegend=False,
+        hoverlabel=dict(
+            bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
+            font_size=12,
+            font_family="Arial",
+            font_color="#ffffff" if is_dark else "#1e293b",
+            bordercolor="#20d6ff" if is_dark else "#3498dc"
+        ),
         transition={'duration': 1200, 'easing': 'cubic-in-out'}
     )
+
     
     fig.update_xaxes(visible=False)
     fig.update_yaxes(type='category', showgrid=False, zeroline=False, tickfont={"size": 11, "color": label_color})
@@ -588,8 +596,16 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         showlegend=True,
         legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1, "font": {"color": label_color}},
         hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
+            font_size=12,
+            font_family="Arial",
+            font_color="#ffffff" if is_dark else "#1e293b",
+            bordercolor="#20d6ff" if is_dark else "#3498dc"
+        ),
         transition={"duration": 1000, "easing": "cubic-in-out"}
     )
+
     
     rev_trace_ids = [0]
     exp_trace_ids = [1]
@@ -760,8 +776,16 @@ def render_quarterly_chart(df_exp, df_rev, title):
         },
         yaxis={"showline": False, "showgrid": False, "type": "category", "showticklabels": False},
         showlegend=True,
-        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1, "font": {"color": label_color}}
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1, "font": {"color": label_color}},
+        hoverlabel=dict(
+            bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
+            font_size=12,
+            font_family="Arial",
+            font_color="#ffffff" if is_dark else "#1e293b",
+            bordercolor="#20d6ff" if is_dark else "#3498dc"
+        )
     )
+
     
     fig_json = fig.to_json()
     
@@ -870,6 +894,14 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
             "tickfont": {"color": label_color}
         },
         showlegend=False,
+        hoverlabel=dict(
+            bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
+            font_size=12,
+            font_family="Arial",
+            font_color="#ffffff" if is_dark else "#1e293b",
+            bordercolor="#20d6ff" if is_dark else "#3498dc"
+        ),
         transition={'duration': 1200, 'easing': 'cubic-in-out'}
     )
+
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
