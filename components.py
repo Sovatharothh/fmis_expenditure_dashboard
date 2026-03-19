@@ -527,13 +527,13 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         fig.add_annotation(
             x=months[r_max_idx], y=rev_values[r_max_idx],
             text="Highest Rev", showarrow=True, arrowhead=2, arrowcolor=annot_text_rev,
-            ax=0, ay=-40, font={"color": annot_text_rev, "size": 10, "family": "Arial Black"},
+            ax=0, ay=-40, font={"color": annot_text_rev, "size": 10, "family": "Arial"},
             bgcolor=annot_bg, bordercolor=annot_text_rev, borderwidth=1
         )
         fig.add_annotation(
             x=months[r_min_idx], y=rev_values[r_min_idx],
             text="Lowest Rev", showarrow=True, arrowhead=2, arrowcolor=annot_text_rev,
-            ax=0, ay=40, font={"color": annot_text_rev, "size": 10, "family": "Arial Black"},
+            ax=0, ay=40, font={"color": annot_text_rev, "size": 10, "family": "Arial"},
             bgcolor=annot_bg, bordercolor=annot_text_rev, borderwidth=1
         )
         
@@ -560,13 +560,13 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         fig.add_annotation(
             x=months[e_max_idx], y=exp_values[e_max_idx],
             text="Highest Exp", showarrow=True, arrowhead=2, arrowcolor=annot_text_exp,
-            ax=0, ay=-40, font={"color": annot_text_exp, "size": 10, "family": "Arial Black"},
+            ax=0, ay=-40, font={"color": annot_text_exp, "size": 10, "family": "Arial"},
             bgcolor=annot_bg, bordercolor=annot_text_exp, borderwidth=1
         )
         fig.add_annotation(
             x=months[e_min_idx], y=exp_values[e_min_idx],
             text="Lowest Exp", showarrow=True, arrowhead=2, arrowcolor=annot_text_exp,
-            ax=0, ay=40, font={"color": annot_text_exp, "size": 10, "family": "Arial Black"},
+            ax=0, ay=40, font={"color": annot_text_exp, "size": 10, "family": "Arial"},
             bgcolor=annot_bg, bordercolor=annot_text_exp, borderwidth=1
         )
         

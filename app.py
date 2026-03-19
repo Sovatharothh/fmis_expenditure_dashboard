@@ -122,13 +122,13 @@ c1, c2, c3, c4 = st.columns(4, gap="small")
 with c1:
     comp.render_combined_monthly_chart(exp_data["monthly_2026"], rev_data["monthly_2026"], "Monthly Trend (Rev vs Exp) - 2026")
 with c2:
-    comp.render_quarterly_chart(exp_data["qtr_2026"], rev_data["qtr_2026"], "Quarterly Implementation - 2026")
-with c3:
     comp.render_combined_monthly_chart(exp_data["monthly_2025"], rev_data["monthly_2025"], "Monthly Trend (Rev vs Exp) - 2025")
+with c3:
+    comp.render_quarterly_chart(exp_data["qtr_2026"], rev_data["qtr_2026"], "Quarterly Implementation - 2026")
 with c4:
     comp.render_quarterly_chart(exp_data["qtr_2025"], rev_data["qtr_2025"], "Quarterly Implementation - 2025")
 
-html("<div class='footer-note' style='text-align:center; padding-top:0.5rem; padding-bottom:0.5rem;'>FMIS - Government Expense & Revenue Dashboard | Data Updated: 11-03-2026</div>")
+html("<div class='footer-note' style='text-align:center; padding-top:0.5rem; padding-bottom:0.5rem;'>FMIS - Government Expense & Revenue Dashboard | Data Updated: 19-03-2026</div>")
 
 # =========================
 # Interval Loop (Kiosk Mode)
