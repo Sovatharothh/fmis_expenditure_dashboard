@@ -587,14 +587,14 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         ))
 
     fig.update_layout(
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.015, "y": 0.95},
-        height=300, margin={"l": 55, "r": 35, "t": 50, "b": 35},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.96},
+        height=300, margin={"l": 50, "r": 35, "t": 0, "b": 45},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
         xaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": {"color": label_color}},
-        yaxis={"showline": False, "showgrid": True, "gridcolor": grid_color, "ticksuffix": " KHR", "tickformat": ".0s", "tickfont": {"color": label_color}},
+        yaxis={"showline": False, "showgrid": True, "gridcolor": grid_color, "ticksuffix": " KHR", "tickformat": ".0s", "tickfont": {"color": label_color}, "tickmode": "linear", "tick0": 0, "dtick": 2e12},
         showlegend=True,
-        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1, "font": {"color": label_color}},
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.05, "xanchor": "right", "x": 1.02, "font": {"color": label_color}},
         hovermode="x unified",
         hoverlabel=dict(
             bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
@@ -752,7 +752,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
         y=qtrs, x=neg_exp_vals, orientation='h', name='Expense',
         marker={"color": '#00A8E1', "line": {"color": 'rgba(255,255,255,0.1)', "width": 1}},
         text=exp_text, textposition='outside', cliponaxis=False,
-        textfont={"color": bar_text_color_exp},
+        textfont={"color": bar_text_color_exp, "size": 9},
         hovertemplate='<b>%{y}</b><br>Expense: %{customdata:,.0f} KHR<extra></extra>',
         customdata=exp_vals
     ))
@@ -760,7 +760,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
         y=qtrs, x=rev_vals, orientation='h', name='Revenue',
         marker={"color": '#00AD4E', "line": {"color": 'rgba(255,255,255,0.1)', "width": 1}},
         text=rev_text, textposition='outside', cliponaxis=False,
-        textfont={"color": bar_text_color_rev},
+        textfont={"color": bar_text_color_rev, "size": 9},
         hovertemplate='<b>%{y}</b><br>Revenue: %{x:,.0f} KHR<extra></extra>'
     ))
     
@@ -779,7 +779,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
             borderwidth=1, borderpad=5, opacity=1.0
         )
     
-    max_val = max(max(rev_vals) if rev_vals else 0, max(exp_vals) if exp_vals else 0) * 1.5
+    max_val = max(max(rev_vals) if rev_vals else 0, max(exp_vals) if exp_vals else 0) * 1.8
     if max_val == 0: max_val = 1
     
     tick_vals = [-max_val, -max_val/2, 0, max_val/2, max_val]
@@ -792,9 +792,9 @@ def render_quarterly_chart(df_exp, df_rev, title):
     tick_text = [format_abs_tick(v) for v in tick_vals]
     
     fig.update_layout(
-        barmode='relative',
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.95},
-        height=300, margin={"l": 30, "r": 30, "t": 40, "b": 30},
+        barmode='relative', bargap=0.2,
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.96},
+        height=270, margin={"l": 30, "r": 30, "t": 60, "b": 15},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
         xaxis={
@@ -806,7 +806,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
         },
         yaxis={"showline": False, "showgrid": False, "type": "category", "showticklabels": False},
         showlegend=True,
-        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1, "font": {"color": label_color}},
+        legend={"orientation": "h", "yanchor": "top", "y": 1.15, "xanchor": "right", "x": 1.02, "font": {"color": label_color}},
         hoverlabel=dict(
             bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
             font_size=12,
@@ -932,6 +932,87 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
             bordercolor="#20d6ff" if is_dark else "#3498dc"
         ),
         transition={'duration': 1200, 'easing': 'cubic-in-out'}
+    )
+
+    st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})
+def render_quarterly_comparison_chart(df_exp_26, df_rev_26, df_exp_25, df_rev_25, title):
+    df_m_26 = pd.merge(df_exp_26, df_rev_26, on="QUARTER_NAME", suffixes=("_EXP", "_REV"), how="outer")
+    df_m_25 = pd.merge(df_exp_25, df_rev_25, on="QUARTER_NAME", suffixes=("_EXP", "_REV"), how="outer")
+    
+    qtrs = sorted(list(set(df_m_26["QUARTER_NAME"].astype(str).tolist() + df_m_25["QUARTER_NAME"].astype(str).tolist())))
+    
+    # Helper to get values in correct qtr order
+    def get_vals(df, col):
+        return [df[df["QUARTER_NAME"] == q][col].iloc[0] if q in df["QUARTER_NAME"].values else 0 for q in qtrs]
+    
+    exp_26 = get_vals(df_m_26, "IMPLEMENTATION_EXP")
+    rev_26 = get_vals(df_m_26, "IMPLEMENTATION_REV")
+    exp_25 = get_vals(df_m_25, "IMPLEMENTATION_EXP")
+    rev_25 = get_vals(df_m_25, "IMPLEMENTATION_REV")
+    
+    neg_exp_26 = [(-1.0) * float(v) for v in exp_26]
+    neg_exp_25 = [(-1.0) * float(v) for v in exp_25]
+    
+    is_dark = st.session_state.theme == 'dark'
+    text_color = "#ffffff" if is_dark else "#1e293b"
+    label_color = "#dcecff" if is_dark else "#1e293b"
+    grid_color = "rgba(255,255,255,0.1)" if is_dark else "rgba(0,0,0,0.1)"
+    
+    fig = go.Figure()
+    
+    # 2025 Bars (Slightly lighter/muted)
+    fig.add_trace(go.Bar(
+        y=qtrs, x=neg_exp_25, orientation='h', name='Expense 2025',
+        marker={"color": '#56C1E8', "line": {"color": 'rgba(255,255,255,0.1)', "width": 1}},
+        hovertemplate='<b>%{y} (2025)</b><br>Expense: %{customdata:,.0f} KHR<extra></extra>',
+        customdata=exp_25
+    ))
+    fig.add_trace(go.Bar(
+        y=qtrs, x=rev_25, orientation='h', name='Revenue 2025',
+        marker={"color": '#32D475', "line": {"color": 'rgba(255,255,255,0.1)', "width": 1}},
+        hovertemplate='<b>%{y} (2025)</b><br>Revenue: %{x:,.0f} KHR<extra></extra>'
+    ))
+
+    # 2026 Bars (Primary vivid)
+    fig.add_trace(go.Bar(
+        y=qtrs, x=neg_exp_26, orientation='h', name='Expense 2026',
+        marker={"color": '#00A8E1', "line": {"color": 'rgba(255,255,255,0.1)', "width": 1}},
+        hovertemplate='<b>%{y} (2026)</b><br>Expense: %{customdata:,.0f} KHR<extra></extra>',
+        customdata=exp_26
+    ))
+    fig.add_trace(go.Bar(
+        y=qtrs, x=rev_26, orientation='h', name='Revenue 2026',
+        marker={"color": '#00AD4E', "line": {"color": 'rgba(255,255,255,0.1)', "width": 1}},
+        hovertemplate='<b>%{y} (2026)</b><br>Revenue: %{x:,.0f} KHR<extra></extra>'
+    ))
+
+    max_val = max(max(rev_26 + rev_25 + exp_26 + exp_25) * 2.2, 1)
+    
+    tick_vals = [-max_val, -max_val/2, 0, max_val/2, max_val]
+    def format_abs_tick(v):
+        a = abs(v)
+        if a >= 1e12: return f"{a/1e12:,.1f}T"
+        if a >= 1e9:  return f"{a/1e9:,.1f}B"
+        if a >= 1e6:  return f"{a/1e6:,.1f}M"
+        return f"{a:,.0f}"
+    
+    fig.update_layout(
+        barmode='group', bargap=0.7,
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.015, "y": 0.96},
+        height=300, margin={"l": 40, "r": 30, "t": 75, "b": 30},
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        font={"color": label_color, "size": 11},
+        xaxis={
+            "showline": False, "showgrid": True, "gridcolor": grid_color, 
+            "range": [-max_val, max_val], "tickvals": tick_vals, 
+            "ticktext": [format_abs_tick(v) for v in tick_vals],
+            "zeroline": True, "zerolinecolor": "rgba(128,128,128,0.4)", "zerolinewidth": 2,
+            "tickfont": {"color": label_color}
+        },
+        yaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": {"color": label_color}},
+        showlegend=True,
+        legend={"orientation": "h", "yanchor": "top", "y": 1.1, "xanchor": "right", "x": 1.02, "font": {"size": 9}},
+        hoverlabel=dict(bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)")
     )
 
     st.plotly_chart(fig, width='stretch', config={"displayModeBar": False})

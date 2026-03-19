@@ -56,7 +56,7 @@ with header_col1:
     html(f'''
         <div style="padding-top: 0.2rem;">
             <div class='dashboard-title'>FMIS -  Expense & Revenue Dashboard</div>
-            <div class='dashboard-subtitle'>Expense and Revenue Integrated Monitoring | Year 2025</div>
+            <div class='dashboard-subtitle'>Expense and Revenue Integrated Monitoring | Year 2026</div>
         </div>
     ''')
 
@@ -117,13 +117,16 @@ with c4:
     comp.render_top5_funnel_chart(rev_data["org"], "Top 5 implementation by Organizations (Revenue)", is_expense=False, margin_left=55)
 
 # Bottom Section
-b1, b2, b3 = st.columns([10, 12, 8], gap="small")
-with b1:
-    comp.render_combined_monthly_chart(exp_data["monthly"], rev_data["monthly"], "Monthly Trend (Rev vs Exp)")
-with b2:
-    comp.render_quarterly_chart(exp_data["qtr"], rev_data["qtr"], "Quarterly Implementation (Rev vs Exp)")
-with b3:
-    comp.render_net_summary_chart(rev_summary, exp_summary, "Revenue vs Expense vs Net")
+# Bottom Section - 2026 & 2025
+c1, c2, c3, c4 = st.columns(4, gap="small")
+with c1:
+    comp.render_combined_monthly_chart(exp_data["monthly_2026"], rev_data["monthly_2026"], "Monthly Trend (Rev vs Exp) - 2026")
+with c2:
+    comp.render_quarterly_chart(exp_data["qtr_2026"], rev_data["qtr_2026"], "Quarterly Implementation - 2026")
+with c3:
+    comp.render_combined_monthly_chart(exp_data["monthly_2025"], rev_data["monthly_2025"], "Monthly Trend (Rev vs Exp) - 2025")
+with c4:
+    comp.render_quarterly_chart(exp_data["qtr_2025"], rev_data["qtr_2025"], "Quarterly Implementation - 2025")
 
 html("<div class='footer-note' style='text-align:center; padding-top:0.5rem; padding-bottom:0.5rem;'>FMIS - Government Expense & Revenue Dashboard | Data Updated: 11-03-2026</div>")
 
