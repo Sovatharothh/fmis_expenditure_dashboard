@@ -112,7 +112,7 @@ with c1:
 with c2:
     comp.render_top5_funnel_chart(exp_data["org"], "Implementation by Sectors (Expense)", is_expense=True, margin_left=95)
 with c3:
-    comp.render_top5_gauge_chart(rev_data["econ"], "Implementation by Economic Class (Revenue)", is_expense=False)
+    comp.render_top5_gauge_chart(rev_data["econ"], "Implementation by Revenue Types", is_expense=False)
 with c4:
     comp.render_top5_funnel_chart(rev_data["org"], "Top 5 implementation by Organizations (Revenue)", is_expense=False, margin_left=55)
 

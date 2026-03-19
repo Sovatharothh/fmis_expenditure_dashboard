@@ -38,7 +38,9 @@ JOIN PS_JRNL_LN line
  AND hdr.journal_date = line.journal_date
  AND hdr.unpost_seq = line.unpost_seq
 WHERE hdr.unpost_seq = 0
-  AND hdr.fiscal_year = 2025
+  AND hdr.fiscal_year = 2026
+    and ( REGEXP_LIKE(hdr.business_unit, '^(CO|DS|PV|PT)') or
+        NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') )
   AND hdr.accounting_period BETWEEN 1 AND 12
   AND hdr.jrnl_hdr_status = 'P'
   AND line.jrnl_line_source <> 'CLO'

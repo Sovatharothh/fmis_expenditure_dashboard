@@ -3,9 +3,11 @@ SELECT
     'Q' || TO_CHAR(a.accounting_dt, 'Q') AS quarter_name,
     SUM(a.monetary_amount) AS implementation
 FROM PS_Z_Q03_QRY_VW a
-WHERE a.accounting_dt >= DATE '2025-01-01'
-  AND a.accounting_dt <= DATE '2025-12-31'
-  AND a.budget_ref LIKE '%2025%'
+WHERE a.accounting_dt >= DATE '2026-01-01'
+  AND a.accounting_dt <= DATE '2026-12-31'
+  AND a.budget_ref LIKE '%2026%'
+  and ( REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') or
+        NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') )
   AND a.budget_ref NOT LIKE 'SD%'
   AND a.post_status_ap = 'P'
   AND a.gl_distrib_status = 'D'

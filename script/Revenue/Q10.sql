@@ -1,26 +1,28 @@
 SELECT
     CASE
-        WHEN a.business_unit LIKE 'E%' THEN 'APE'
-        WHEN REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
-        WHEN NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
-    END
+        WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
+        WHEN REGEXP_LIKE(hdr.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
+        WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
+        ELSE 'Unmapped'
+    END AS gov_level,
 
-    -SUM(CASE 
+    -- Note: multiplying by -1 or using leading minus to show budgets as positive
+    -SUM(CASE
             WHEN hdr.kk_budg_trans_type = '0'
-            THEN line.monetary_amount 
-            ELSE 0 
+            THEN line.monetary_amount
+            ELSE 0
         END) AS original_budget,
 
-    -SUM(CASE 
+    -SUM(CASE
             WHEN hdr.kk_budg_trans_type = '1'
-            THEN line.monetary_amount 
-            ELSE 0 
+            THEN line.monetary_amount
+            ELSE 0
         END) AS adjustment_budget,
 
-    -SUM(CASE 
+    -SUM(CASE
             WHEN hdr.kk_budg_trans_type NOT IN ('0','1')
-            THEN line.monetary_amount 
-            ELSE 0 
+            THEN line.monetary_amount
+            ELSE 0
         END) AS transfer_budget,
 
     -SUM(line.monetary_amount) AS current_budget
@@ -33,7 +35,7 @@ JOIN ps_kk_budget_ln line
  AND line.unpost_seq    = hdr.unpost_seq
 
 WHERE hdr.ledger_group = 'CCRVGROUP'
-  AND hdr.fiscal_year = 2025
+  AND hdr.fiscal_year = 2026
   AND hdr.unpost_seq = 0
   AND (
         hdr.bd_hdr_status = 'P'
@@ -53,8 +55,15 @@ WHERE hdr.ledger_group = 'CCRVGROUP'
 
 GROUP BY
     CASE
-        WHEN a.business_unit LIKE 'E%' THEN 'APE'
-        WHEN REGEXP_LIKE(a.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
-        WHEN NOT REGEXP_LIKE(a.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
+        WHEN hdr.business_unit LIKE 'E%' THEN 'APE'
+        WHEN REGEXP_LIKE(hdr.business_unit, '^(CO|DS|PV|PT)') THEN 'Sub-national'
+        WHEN NOT REGEXP_LIKE(hdr.business_unit, '^(PT|NT|FMIS|CMB|CO|PV|DS|E)') THEN 'National'
+        ELSE 'Unmapped'
     END
-ORDER BY gov_level;
+ORDER BY
+    CASE
+        WHEN gov_level = 'National' THEN 1
+        WHEN gov_level = 'Sub-national' THEN 2
+        WHEN gov_level = 'APE' THEN 3
+        ELSE 4
+    END
