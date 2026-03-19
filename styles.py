@@ -314,17 +314,6 @@ def apply_custom_styles():
                 50% {{ opacity: 1; box-shadow: 0 0 12px var(--green); }}
                 100% {{ opacity: 0.4; box-shadow: 0 0 0px var(--green); }}
             }}
-
-            path[fill-opacity="0.155"], path[fill-opacity="0.255"], path[fill-opacity="0.455"],
-            path[style*="fill-opacity: 0.155"], path[style*="fill-opacity: 0.255"], path[style*="fill-opacity: 0.455"] {{
-                animation: trendPulse 3s infinite ease-in-out !important;
-            }}
-
-            @keyframes trendPulse {{
-                0%   {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px var(--cyan)); }}
-                50%  {{ opacity: 1.0; filter: brightness(1.6) drop-shadow(0 0 12px var(--cyan)); }}
-                100% {{ opacity: 0.4; filter: brightness(1) drop-shadow(0 0 0px var(--cyan)); }}
-            }}
         </style>
         '''
     )

@@ -275,7 +275,7 @@ def render_top5_gauge_chart(df, title, is_expense=True):
         }}
     </style>
     <div id="container_{chart_uid}" class="am-chart-container glow-sweep-canvas">
-        <div style="width: 100%; color: {title_color}; font-size: 14px; font-weight: 800; margin-bottom: 2px; text-align: left; padding-left: 5px; font-family: Arial, sans-serif;">
+        <div style="width: 100%; color: {title_color}; font-size: 14px; font-weight: 800; margin-bottom: 2px; text-align: left; padding-left: 2px; font-family: Arial, sans-serif;">
             {title}
         </div>
         <div id="{chart_uid}" style="width: 100%; height: 270px;"></div>
@@ -401,9 +401,9 @@ def render_top5_funnel_chart(df, title, is_expense=True, margin_left=80):
     label_color = "#dcecff" if is_dark else "#1e293b" 
 
     fig.update_layout(
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": title_color, "family": "Arial"}, "x": 0.05, "y": 0.92},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": title_color, "family": "Arial"}, "x": 0.02, "y": 0.96},
         height=300, 
-        margin={"l": margin_left + 15, "r": 30, "t": 60, "b": 15}, 
+        margin={"l": margin_left + 15, "r": 30, "t": 50, "b": 15}, 
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 10},
         showlegend=False,
@@ -587,7 +587,7 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         ))
 
     fig.update_layout(
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.05, "y": 0.95},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.015, "y": 0.95},
         height=300, margin={"l": 55, "r": 35, "t": 50, "b": 35},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
@@ -653,6 +653,36 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
         }}
         .trace {{
             transition: opacity 1.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }}
+        
+        @keyframes pulseGreen {{
+            0%   {{ opacity: 0.6; filter: brightness(1) drop-shadow(0 0 2px #00AD4E); }}
+            50%  {{ opacity: 1.0; filter: brightness(1.8) drop-shadow(0 0 18px #00AD4E); }}
+            100% {{ opacity: 0.6; filter: brightness(1) drop-shadow(0 0 2px #00AD4E); }}
+        }}
+
+        @keyframes pulseBlue {{
+            0%   {{ opacity: 0.6; filter: brightness(1) drop-shadow(0 0 2px #00A8E1); }}
+            50%  {{ opacity: 1.0; filter: brightness(1.8) drop-shadow(0 0 18px #00A8E1); }}
+            100% {{ opacity: 0.6; filter: brightness(1) drop-shadow(0 0 2px #00A8E1); }}
+        }}
+
+        path[fill*="0, 173, 78"][fill-opacity="0.155"], 
+        path[fill*="0, 173, 78"][fill-opacity="0.255"],
+        path[fill*="0, 173, 78"][fill-opacity="0.455"],
+        path[style*="0, 173, 78"][style*="fill-opacity: 0.155"],
+        path[style*="0, 173, 78"][style*="fill-opacity: 0.255"],
+        path[style*="0, 173, 78"][style*="fill-opacity: 0.455"] {{
+            animation: pulseGreen 1.1s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
+        }}
+
+        path[fill*="0, 168, 225"][fill-opacity="0.155"],
+        path[fill*="0, 168, 225"][fill-opacity="0.255"],
+        path[fill*="0, 168, 225"][fill-opacity="0.455"],
+        path[style*="0, 168, 225"][style*="fill-opacity: 0.155"],
+        path[style*="0, 168, 225"][style*="fill-opacity: 0.255"],
+        path[style*="0, 168, 225"][style*="fill-opacity: 0.455"] {{
+            animation: pulseBlue 1.1s infinite cubic-bezier(0.4, 0, 0.6, 1) !important;
         }}
     </style>
     <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
@@ -763,7 +793,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
     
     fig.update_layout(
         barmode='relative',
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.05, "y": 0.95},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.95},
         height=300, margin={"l": 30, "r": 30, "t": 40, "b": 30},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
@@ -883,7 +913,7 @@ def render_net_summary_chart(rev_summary, exp_summary, title):
     grid_color = "rgba(255,255,255,0.1)" if is_dark else "rgba(0,0,0,0.1)"
 
     fig.update_layout(
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.01},
         height=300, margin={"l": 20, "r": 20, "t": 40, "b": 10},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 12},
