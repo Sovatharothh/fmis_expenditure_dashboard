@@ -55,8 +55,8 @@ header_col1, header_col2 = st.columns([6, 4])
 with header_col1:
     html(f'''
         <div style="padding-top: 0.2rem;">
-            <div class='dashboard-title'>FMIS -  Expense & Revenue Dashboard</div>
-            <div class='dashboard-subtitle'>Expense and Revenue Integrated Monitoring | Year 2026</div>
+            <div class='dashboard-title'>FMIS -  Financial Dashboard</div>
+            <div class='dashboard-subtitle'>Financial  Integrated Monitoring | Year 2026</div>
         </div>
     ''')
 
