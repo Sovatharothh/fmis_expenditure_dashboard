@@ -149,18 +149,21 @@ def render_process_row(label, value, target, is_expense=True, custom_gradient=No
     glow = "rgba(0, 168, 225, 0.3)" if is_expense else "rgba(0, 173, 78, 0.3)"
     
     return "".join([
-        "<div class='process-row' style='margin-bottom: 0.1rem;'>",
-        f"<div style='font-size: 0.85rem; font-weight: 600; color: {text_color}; margin-bottom: 0px;'>{label}</div>",
-        "<div class='process-track' style='height: 10px; margin-bottom: 1px;'>",
-        f"<div class='process-fill' style='width:{display_pct}%; background:{color}; box-shadow: 0 0 5px {glow}; border-radius: 4px;'></div>",
+        "<div class='process-row'>",
+        "<div style='display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px;'>",
+        f"<div style='flex: 1; font-size: 0.85rem; font-weight: 600; color: {text_color};'>{label}</div>",
+        f"<div style='flex: 1; text-align: center;'><span class='process-percentage' style='color:{label_color}; font-size: 0.9rem;'>{pct:.1f}%</span></div>",
+        "<div style='flex: 1;'></div>",
+        "</div>",
+        "<div class='process-track' style='margin-bottom: 4px;'>",
+        f"<div class='process-fill' style='width:{display_pct}%; background:{color}; box-shadow: 0 0 5px {glow};'></div>",
         "</div>",
         "<div style='display: flex; justify-content: space-between; align-items: baseline;'>",
         "<div>",
         f"<span style='color:{label_color}; font-size: 0.95rem; font-weight: 800;'>{format_money(value)}</span> ",
-        f"<span style='color:{label_color}; font-size: 0.75rem; font-weight: 500; opacity: 0.9;'>({pct:.1f}%)</span>",
         "</div>",
-        "<div style='text-align: right;'>",
-        f"<span style='font-size: 0.6rem; color: #5c84b8; text-transform: uppercase; letter-spacing: 0.8px; margin-right: 4px;'>Modified Law</span>",
+        "<div style='text-align: right; opacity: 1.0;'>",
+        f"<span style='font-size: 0.6rem; color: #5c84b8; text-transform: uppercase; letter-spacing: 0.6px; margin-right: 2px;'>Mod. Law</span>",
         f"<span style='font-size: 0.8rem; color: {secondary_text}; font-weight: 700;'>{format_money(target)}</span>",
         "</div>",
         "</div>",
@@ -188,11 +191,11 @@ def render_process_bar(exp_nat_impl, exp_nat_mod, exp_sub_impl, exp_sub_mod, rev
         f'''
         <div class="process-container">
             <div style="width: 100%;">
-                <div class="process-title" style="color: {title_color_exp}; margin-bottom: 0.4rem;">Expense Implementation</div>
+                <div class="process-title" style="color: {title_color_exp}; margin-bottom: 0.2rem;">Expense Implementation</div>
                 {exp_body}
             </div>
             <div style="width: 100%;">
-                <div class="process-title" style="color: {title_color_rev}; margin-bottom: 0.4rem; margin-top: 0.2rem;">Revenue Implementation</div>
+                <div class="process-title" style="color: {title_color_rev}; margin-bottom: 0.2rem; margin-top: 0.1rem;">Revenue Implementation</div>
                 {rev_body}
             </div>
         </div>
@@ -586,15 +589,24 @@ def render_combined_monthly_chart(df_exp, df_rev, title):
             showlegend=False, hoverinfo='skip'
         ))
 
+    # Calculate max for axis range
+    all_values = exp_values + rev_values
+    max_val = max(all_values) if all_values else 8e12
+    
     fig.update_layout(
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.96},
-        height=300, margin={"l": 50, "r": 35, "t": 0, "b": 45},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.95},
+        height=300, margin={"l": 50, "r": 35, "t": 65, "b": 35},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
         xaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": {"color": label_color}},
-        yaxis={"showline": False, "showgrid": True, "gridcolor": grid_color, "ticksuffix": " KHR", "tickformat": ".0s", "tickfont": {"color": label_color}, "tickmode": "linear", "tick0": 0, "dtick": 2e12},
+        yaxis={
+            "showline": False, "showgrid": True, "gridcolor": grid_color, 
+            "ticksuffix": " KHR", "tickformat": ".0s", "tickfont": {"color": label_color}, 
+            "tickmode": "linear", "tick0": 0, "dtick": 2e12,
+            "range": [0, max_val * 1.2]
+        },
         showlegend=True,
-        legend={"orientation": "h", "yanchor": "bottom", "y": 1.05, "xanchor": "right", "x": 1.02, "font": {"color": label_color}},
+        legend={"orientation": "h", "yanchor": "top", "y": -0.1, "xanchor": "center", "x": 0.5, "font": {"color": label_color, "size": 11}, "bgcolor": "rgba(0,0,0,0)"},
         hovermode="x unified",
         hoverlabel=dict(
             bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
@@ -793,8 +805,8 @@ def render_quarterly_chart(df_exp, df_rev, title):
     
     fig.update_layout(
         barmode='relative', bargap=0.2,
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.96},
-        height=270, margin={"l": 30, "r": 30, "t": 60, "b": 15},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.02, "y": 0.95},
+        height=300, margin={"l": 30, "r": 30, "t": 65, "b": 35},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
         xaxis={
@@ -806,7 +818,7 @@ def render_quarterly_chart(df_exp, df_rev, title):
         },
         yaxis={"showline": False, "showgrid": False, "type": "category", "showticklabels": False},
         showlegend=True,
-        legend={"orientation": "h", "yanchor": "top", "y": 1.15, "xanchor": "right", "x": 1.02, "font": {"color": label_color}},
+        legend={"orientation": "h", "yanchor": "top", "y": -0.1, "xanchor": "center", "x": 0.5, "font": {"color": label_color, "size": 11}, "bgcolor": "rgba(0,0,0,0)"},
         hoverlabel=dict(
             bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)",
             font_size=12,
@@ -998,8 +1010,8 @@ def render_quarterly_comparison_chart(df_exp_26, df_rev_26, df_exp_25, df_rev_25
     
     fig.update_layout(
         barmode='group', bargap=0.7,
-        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.015, "y": 0.96},
-        height=300, margin={"l": 40, "r": 30, "t": 75, "b": 30},
+        title={"text": f"<b>{title}</b>", "font": {"size": 14, "color": text_color, "family": "Arial"}, "x": 0.015, "y": 0.95},
+        height=330, margin={"l": 40, "r": 30, "t": 65, "b": 40},
         paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
         font={"color": label_color, "size": 11},
         xaxis={
@@ -1011,7 +1023,7 @@ def render_quarterly_comparison_chart(df_exp_26, df_rev_26, df_exp_25, df_rev_25
         },
         yaxis={"showline": False, "showgrid": False, "type": "category", "tickfont": {"color": label_color}},
         showlegend=True,
-        legend={"orientation": "h", "yanchor": "top", "y": 1.1, "xanchor": "right", "x": 1.02, "font": {"size": 9}},
+        legend={"orientation": "h", "yanchor": "top", "y": -0.1, "xanchor": "center", "x": 0.5, "font": {"size": 9}, "bgcolor": "rgba(0,0,0,0)"},
         hoverlabel=dict(bgcolor="rgba(30, 41, 59, 0.95)" if is_dark else "rgba(255, 255, 255, 0.95)")
     )
 

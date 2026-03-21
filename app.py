@@ -56,27 +56,41 @@ with header_col1:
     html(f'''
         <div style="padding-top: 0.2rem;">
             <div class='dashboard-title'>FMIS -  Financial Dashboard</div>
-            <div class='dashboard-subtitle'>Financial  Integrated Monitoring | Year 2026</div>
+            <div class='dashboard-subtitle' style="font-size: 1.0rem; margin-top: 0.2rem;">Financial Integrated Monitoring | Year 2026</div>
         </div>
     ''')
 
 with header_col2:
-    btn_col, src_col, live_col = st.columns([1.3, 1.2, 0.9])
+    legend_col, btn_col, src_col, live_col = st.columns([2.2, 1.3, 1.1, 0.7])
     
+    with legend_col:
+        html(f'''
+            <div style="display: flex; gap: 1.2rem; align-items: center; justify-content: flex-end; height: 38px; padding-right: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; color: {"#e9f2ff" if is_dark else "#1e293b"}; font-size: 1.0rem; font-weight: 700;">
+                    <span style="width: 12px; height: 12px; background: #00A8E1; border-radius: 2px; display: inline-block;"></span> 
+                    Expense
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; color: {"#e9f2ff" if is_dark else "#1e293b"}; font-size: 1.0rem; font-weight: 700;">
+                    <span style="width: 12px; height: 12px; background: #00AD4E; border-radius: 2px; display: inline-block;"></span> 
+                    Revenue
+                </div>
+            </div>
+        ''')
+
     with btn_col:
         st.button(f"{theme_icon} {theme_label}", key="theme_toggle", on_click=toggle_theme, width='stretch')
     
     with src_col:
         html(f'''
-            <div style="background: rgba(32, 214, 255, 0.1); border: 1px solid rgba(32, 214, 255, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #20d6ff; font-size: 0.7rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; text-align: center; height: 38px; display: flex; align-items: center; justify-content: center;">
-                Source: FMIS
+            <div style="background: rgba(32, 214, 255, 0.1); border: 1px solid rgba(32, 214, 255, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #20d6ff; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; text-align: center; height: 38px; display: flex; align-items: center; justify-content: center; width: 100%;">
+                SOURCE: FMIS
             </div>
         ''')
         
     with live_col:
         html(f'''
-            <div style="background: rgba(0, 173, 78, 0.1); border: 1px solid rgba(0, 173, 78, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #00AD4E; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.4rem; letter-spacing: 1px; text-transform: uppercase; height: 38px;">
-                <span style="width: 7px; height: 7px; background: #00AD4E; border-radius: 50%; box-shadow: 0 0 8px #00AD4E; animation: livePulse 2s infinite ease-in-out;"></span>
+            <div style="background: rgba(0, 173, 78, 0.1); border: 1px solid rgba(0, 173, 78, 0.3); padding: 0.5rem 0.6rem; border-radius: 6px; color: #00AD4E; font-size: 0.8rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.5rem; letter-spacing: 0.5px; text-transform: uppercase; height: 38px; width: 100%;">
+                <span style="width: 8px; height: 8px; background: #00AD4E; border-radius: 50%; box-shadow: 0 0 8px #00AD4E; animation: livePulse 2s infinite ease-in-out;"></span>
                 Live
             </div>
         ''')

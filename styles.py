@@ -178,13 +178,14 @@ def apply_custom_styles():
             .process-container {{
                 background: var(--panel);
                 border-radius: 12px;
-                padding: 1.2rem;
+                height: 374px;
+                padding: 0.4rem 1.2rem 1.2rem 1.2rem;
                 border: 1px solid var(--border);
-                height: 360px;
                 box-sizing: border-box;
                 display: flex;
                 flex-direction: column;
-                justify-content: space-between;
+                justify-content: flex-start;
+                gap: 0.2rem;
                 box-shadow: var(--shadow);
                 animation: fadeInUp 0.8s ease-out backwards;
                 animation-delay: 0.5s;
@@ -192,16 +193,18 @@ def apply_custom_styles():
             
             .process-title {{
                 color: var(--cyan);
-                font-size: 1.1rem;
+                font-size: 1.0rem;
                 font-weight: 800;
-                margin-bottom: 1.2rem;
+                margin-bottom: 0.2rem;
+                margin-top: 0.1rem;
                 text-align: center;
-                letter-spacing: 1px;
+                letter-spacing: 0.5px;
                 text-transform: uppercase;
             }}
 
             .process-row {{
-                margin-bottom: 1.2rem;
+                margin-bottom: 0.15rem;
+                padding: 0.1rem 0rem;
             }}
 
             .process-label-row {{
@@ -216,26 +219,36 @@ def apply_custom_styles():
             .process-track {{
                 width: 100%;
                 height: 12px;
-                border-radius: 999px;
-                background: rgba(0, 0, 0, 0.2) !important;
+                border-radius: 4px;
+                background: rgba(0, 0, 0, 0.25) !important;
                 overflow: hidden;
                 box-shadow: inset 0 2px 4px rgba(0,0,0,0.4) !important;
+                position: relative;
             }}
 
             .process-fill {{
                 height: 100%;
-                border-radius: 999px;
                 background: linear-gradient(90deg, var(--blue), var(--cyan));
-                position: relative;
+                position: absolute;
+                top: 0;
+                left: 0;
                 animation: fillBar 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
                 transform-origin: left;
+                z-index: 1;
+                border-radius: 4px;
             }}
             
+            .process-percentage {{
+                font-weight: 900;
+                font-size: 1.1rem;
+                letter-spacing: 0.5px;
+            }}
+
             .process-fill::after {{
                 content: '';
                 position: absolute;
                 top: 0; right: 0; bottom: 0; left: 0;
-                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
                 animation: shine 3s infinite linear;
             }}
 
